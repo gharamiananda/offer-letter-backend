@@ -108,13 +108,15 @@ export const offerLetterService = {
   if (offerLetter.acknowledge) {
     // Already acknowledged → no update needed
     return { message: "Offer letter already acknowledged" };
-  }
+  }else{
 
   // Update acknowledge to true
   offerLetter.acknowledge = true;
   await offerLetter.save();
 
   return { message: "Offer letter acknowledged successfully" };
+  }
+
 }
 ,
   async createOfferLetter(
