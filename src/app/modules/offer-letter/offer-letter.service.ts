@@ -1,17 +1,76 @@
+import { StatusCodes } from "http-status-codes";
 import QueryBuilder from "../../builder/QueryBuilder";
+import AppError from "../../errors/appError";
 import { EmailHelper } from "../../utils/emailHelper";
 import {
+  generateOfferLetterHTML,
   generateOfferLetterPDF,
   generateOrderInvoicePDF,
 } from "../../utils/generateOrderInvoicePDF";
 import { IJwtPayload } from "../auth/auth.interface";
 import { IOfferLetter, offerLetterStatus } from "./offer-letter.interface";
 import OfferLetter from "./offer-letter.model";
+import pLimit from "p-limit";
+
+const limit = pLimit(10); // Max 10 concurrent emails
+async function processOneOfferLetter(
+  offerLetterData: IOfferLetter,
+  authUser: IJwtPayload
+) {
+  const updatedData: IOfferLetter = { ...offerLetterData };
+  let resultStatus = offerLetterStatus.FAILED;
+
+  try {
+    const emailContent = await EmailHelper.createEmailContent(
+      //@ts-ignore
+      { userName: offerLetterData.employeeEmail || "", ...updatedData },
+      "offerLetter"
+    );
+
+    const pdfBuffer = await generateOfferLetterPDF(offerLetterData);
+
+    const attachment = {
+      filename: `offerletter_${offerLetterData.employeeEmail}.pdf`,
+      content: pdfBuffer,
+      encoding: "base64", // if necessary
+    };
+
+    const emailResult = await EmailHelper.sendEmail(
+      //@ts-ignore
+      offerLetterData.employeeEmail,
+      emailContent,
+      "Offer letter confirmed!",
+      attachment
+    );
+
+    resultStatus =
+      emailResult.status === offerLetterStatus.SENT
+        ? offerLetterStatus.SENT
+        : offerLetterStatus.FAILED;
+
+    updatedData.status = resultStatus;
+  } catch (error) {
+    console.error(`Failed for ${offerLetterData.employeeEmail}:`, error);
+    updatedData.status = offerLetterStatus.FAILED;
+  }
+
+  const newOfferLetter = new OfferLetter({
+    ...updatedData,
+    generateByUser: authUser.userId,
+  });
+
+  await newOfferLetter.save();
+
+  return {
+    email: offerLetterData.employeeEmail,
+    status: updatedData.status,
+  };
+}
 
 export const offerLetterService = {
   async getOfferLetterAll(query: Record<string, unknown>) {
     const offerLetterQuery = new QueryBuilder(OfferLetter.find(), query)
-      .search(["name"])
+      .search(["employeeName", "employeeEmail"])
       .filter()
       .sort()
       .paginate()
@@ -24,6 +83,29 @@ export const offerLetterService = {
       meta,
       result,
     };
+  },
+  async getOfferLetterById(id: string) {
+    const offerLetter = await OfferLetter.findById(id);
+    if (!offerLetter) {
+      throw new AppError(StatusCodes.NOT_FOUND, "Offer letter not found!");
+    }
+    const logoBase64 = ""; // you can fetch actual logo if needed
+    const htmlContent = generateOfferLetterHTML(
+      offerLetter as IOfferLetter,
+      logoBase64
+    );
+
+    return htmlContent;
+  },
+  async acknowledgeById(id: string) {
+    const offerLetter = await OfferLetter.findByIdAndUpdate(id, {
+      acknowledge: true,
+    });
+    if (!offerLetter) {
+      throw new AppError(StatusCodes.NOT_FOUND, "Offer letter not found!");
+    }
+
+    return null;
   },
   async createOfferLetter(
     offerLetterData: IOfferLetter,
@@ -69,6 +151,18 @@ export const offerLetterService = {
 
     const result = await newOfferLetter.save();
     return result;
+  },
+  async createBulkOfferLetters(
+    offerLetters: IOfferLetter[],
+    authUser: IJwtPayload
+  ) {
+    const results = await Promise.all(
+      offerLetters.map((data) =>
+        limit(() => processOneOfferLetter(data, authUser))
+      )
+    );
+
+    return results;
   },
 
   // async updateOfferLetter(

@@ -32,7 +32,7 @@ const sendEmail = async (
     });
 
     const mailOptions: any = {
-      from: `"NextMart" <${config.sender_email}>`, // corrected formatting
+      from: `Woodrock <${config.sender_email}>`, // corrected formatting
       to: email,
       subject,
       html,

@@ -7,6 +7,10 @@ const offerLetterSchema = new Schema<IOfferLetter>(
       type: String,
       required: true,
     },
+    employeeEmail: {
+      type: String,
+      required: true,
+    },
     employeeAddress: {
       type: String,
       required: true,
@@ -26,16 +30,20 @@ const offerLetterSchema = new Schema<IOfferLetter>(
     companyLogo: {
       type: String,
       default: "",
-      validate: {
-        validator: function (v: string) {
-          return /^(http(s)?:\/\/.*\.(?:png|jpg|jpeg))$/.test(v);
-        },
-        message: "Invalid company logo URL format.",
-      },
+      // validate: {
+      //   validator: function (v: string) {
+      //     return /^(http(s)?:\/\/.*\.(?:png|jpg|jpeg))$/.test(v);
+      //   },
+      //   message: "Invalid company logo URL format.",
+      // },
     },
     companyName: {
       type: String,
       required: true,
+    },
+    acknowledge: {
+      type: Boolean,
+      default: false,
     },
     status: {
       type: String,

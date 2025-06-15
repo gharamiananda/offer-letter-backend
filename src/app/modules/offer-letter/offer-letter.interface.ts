@@ -24,4 +24,5 @@ export interface IOfferLetter extends Document {
   emailMessage: string;
   status: offerLetterStatus;
   generateByUser: Schema.Types.ObjectId;
+  acknowledge: boolean;
 }

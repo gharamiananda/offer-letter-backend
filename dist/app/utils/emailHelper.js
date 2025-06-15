@@ -69,7 +69,7 @@ const sendEmail = (email, html, subject, attachment) => __awaiter(void 0, void 0
             },
         });
         const mailOptions = {
-            from: `"NextMart" <${config_1.default.sender_email}>`, // corrected formatting
+            from: `Woodrock <${config_1.default.sender_email}>`, // corrected formatting
             to: email,
             subject,
             html,

@@ -14,5 +14,13 @@ const router = (0, express_1.Router)();
 router.post("/", (0, auth_1.default)(user_interface_1.UserRole.ADMIN, user_interface_1.UserRole.USER), 
 // validateRequest(categoryValidation.createCategoryValidationSchema),
 offer_letter_controller_1.offerLetterController.createOfferLetter);
+const multer_1 = __importDefault(require("multer"));
+const storage = multer_1.default.memoryStorage();
+const multerUpload = (0, multer_1.default)({ storage });
+router.post("/upload-offer-letter-csv", (0, auth_1.default)(user_interface_1.UserRole.ADMIN, user_interface_1.UserRole.USER), multerUpload.single("multipleOfferLetterCsv"), 
+// validateRequest(categoryValidation.createCategoryValidationSchema),
+offer_letter_controller_1.offerLetterController.createBulkOfferLetter);
 router.get("/", (0, auth_1.default)(user_interface_1.UserRole.ADMIN, user_interface_1.UserRole.USER), offer_letter_controller_1.offerLetterController.getOfferLetterAll);
+router.get("/html/:id", (0, auth_1.default)(user_interface_1.UserRole.ADMIN, user_interface_1.UserRole.USER), offer_letter_controller_1.offerLetterController.getOfferLetterById);
+router.get("/offer-acknowledge/:id", offer_letter_controller_1.offerLetterController.acknowledgeById);
 exports.OfferLetterRoutes = router;

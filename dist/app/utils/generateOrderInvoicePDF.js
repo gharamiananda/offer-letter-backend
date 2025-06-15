@@ -12,9 +12,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateOfferLetterPDF = exports.generateOrderInvoicePDF = void 0;
+exports.generateOfferLetterPDF = exports.generateOfferLetterHTML = exports.generateOrderInvoicePDF = void 0;
 const pdfkit_1 = __importDefault(require("pdfkit"));
 const axios_1 = __importDefault(require("axios"));
+const puppeteer_1 = __importDefault(require("puppeteer"));
 /**
  * Generates a PDF invoice for an order.
  * @param {IOrder} order - The order object to generate the invoice for.
@@ -199,70 +200,232 @@ const generateOrderInvoicePDF = (order) => __awaiter(void 0, void 0, void 0, fun
     }));
 });
 exports.generateOrderInvoicePDF = generateOrderInvoicePDF;
+const generateOfferLetterHTML = (offerLetter, logoBase64) => {
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Offer Letter - Woodrock Softonic Pvt Ltd</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      line-height: 1.6;
+      color: #333;
+    }
+    .letter {
+      max-width: 800px;
+      margin: auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+    }
+    .header, .footer {
+      text-align: center;
+    }
+    .section-title {
+      font-weight: bold;
+      margin-top: 20px;
+      text-decoration: underline;
+    }
+    .terms, .zte-policy, .ul-policy {
+      font-size: 0.95em;
+    }
+    ul {
+      padding-left: 20px;
+    }
+    .signature {
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+  <div class="letter">
+    <div class="header">
+      <h2>WOODROCK SOFTONIC PVT LTD</h2>
+    </div>
+
+    <p>DEAR  ${offerLetter.employeeName}</p>
+    <p style="text-align:right;">Date: 09-06-2025</p>
+
+    <p>Congratulations! With reference to your application and subsequent interview with us, we are pleased to offer you the position of <strong>${offerLetter.employeeDesignation}</strong> with Woodrock Softonic Private Limited. Your beginning monthly remuneration will be <strong>INR ${offerLetter.employeeCtc} /-</strong>.</p>
+
+    <ul>
+      <li>Shift Allocated: Full Time</li>
+      <li>Shift Timing Allocated: Flexible Timing</li>
+      <li>Reporting Timing: 20 mins before login</li>
+      <li>Joining Location: Kolkata</li>
+      <li>Venue Details: Work from office / Work from home</li>
+    </ul>
+
+    <p>The offer has been made based on information furnished by you. However, if there is a discrepancy in any document or certificate provided by you as proof, we reserve the right to review the offer of employment. Employment as per this offer is subject to your being medically fit.</p>
+
+    <p>Please sign and return a duplicate copy of this letter in token of your acceptance. We congratulate you on your appointment and wish you a long and successful career with us. We are confident that your contribution will take us further in our journey towards becoming world leaders. We assure you of our support for your professional development and growth. We look forward to a mutually rewarding term with us.</p>
+
+    <p>Regards,<br>Simran Jha || HR Department<br>Woodrock Softonic Private Limited<br>Mail: Simran.jha@woodrockgroup.in</p>
+
+    <div class="section-title">Terms & Conditions</div>
+    <div class="terms">
+      <ul>
+        <li>Attendance cycle: 1st to 31st, salary date: 15th of next month.</li>
+        <li>Training: 40 days including OJT.</li>
+        <li>P tax deduction as per norms.</li>
+        <li>Flexible shift allocation, no fixed timing.</li>
+        <li>Unapproved leave/absenteeism: salary may be held.</li>
+        <li>Salary through Cheque / NEFT / IMPS.</li>
+        <li>Probation period: 90 days.</li>
+        <li>Absenteeism between 1st to 15th: salary hold until rejoining + fortnight work.</li>
+        <li>Termination: Immediate for performance/disciplinary issues.</li>
+        <li>Resignation: 30 days’ notice required or no dues/documents released.</li>
+        <li>Late coming: 3 lates = 1 day absent.</li>
+      </ul>
+    </div>
+
+    <div class="section-title">ZTE Policy</div>
+    <div class="zte-policy">
+      <table border="1" cellspacing="0" cellpadding="5">
+        <tr>
+          <th>Parameter</th>
+          <th>Target</th>
+          <th>Consequence</th>
+        </tr>
+        <tr>
+          <td>CMB</td>
+          <td>0</td>
+          <td>Separation under ZT</td>
+        </tr>
+        <tr>
+          <td>CNR</td>
+          <td>0</td>
+          <td>Separation under ZT</td>
+        </tr>
+        <tr>
+          <td>Rude/Sarcastic Call</td>
+          <td>0</td>
+          <td>Separation under ZT</td>
+        </tr>
+        <tr>
+          <td>Re-Assignment Case</td>
+          <td>0</td>
+          <td>Separation under ZT</td>
+        </tr>
+        <tr>
+          <td>Invalid/Forceful Call Disconnection</td>
+          <td>0</td>
+          <td>Separation under ZT</td>
+        </tr>
+      </table>
+      <p>Salary for the month with ZT violation will not be processed. No release letter/experience certificate for ZT cases.</p>
+    </div>
+
+    <div class="section-title">Uninformed Leave (UL) Policy</div>
+    <div class="ul-policy">
+      <p>Each uninformed leave: 2 days Loss of Pay (LOP). Repeated ULs may lead to disciplinary action.</p>
+    </div>
+
+    <div class="signature">
+      <p>I ${offerLetter.employeeName}, hereby accept the offer & agree totally to the terms & conditions.</p>
+      <p>Employee Signature: ___________________</p>
+    </div>
+  </div>
+</body>
+</html>
+`;
+};
+exports.generateOfferLetterHTML = generateOfferLetterHTML;
 const generateOfferLetterPDF = (offerLetter) => __awaiter(void 0, void 0, void 0, function* () {
-    return new Promise((resolve, reject) => __awaiter(void 0, void 0, void 0, function* () {
-        try {
-            // Fetch company logo
-            const logoUrl = "https://media.cakeresume.com/image/upload/s--k9CQtNTA--/c_pad,fl_png8,h_400,w_400/v1691154551/e6idc2sh97xdrmuafkp7.png";
-            // Download the logo image as a buffer
-            const response = yield axios_1.default.get(logoUrl, {
-                responseType: "arraybuffer",
-            });
-            //   const logoBuffer = Buffer.from(response.data);
-            //   const response = await axios.get(offerLetter.companyLogo, {
-            //     responseType: "arraybuffer",
-            //   });
-            const logoBuffer = Buffer.from(response.data);
-            const doc = new pdfkit_1.default({ margin: 50 });
-            const buffers = [];
-            doc.on("data", (chunk) => buffers.push(chunk));
-            doc.on("end", () => resolve(Buffer.concat(buffers)));
-            doc.on("error", (err) => reject(err));
-            // Company Logo
-            const logoWidth = 80;
-            const logoX = (doc.page.width - logoWidth) / 2;
-            doc.image(logoBuffer, logoX, doc.y, { width: logoWidth });
-            doc.moveDown(2);
-            // Title
-            doc
-                .fontSize(18)
-                .font("Helvetica-Bold")
-                .fillColor("#003366")
-                .text("Offer Letter", { align: "center" });
-            doc.moveDown(1);
-            // Date
-            doc
-                .fontSize(12)
-                .fillColor("black")
-                .text(`Date: ${offerLetter.offerLetterDate}`);
-            doc.moveDown(1);
-            // Employee Details
-            doc.text(`To,`);
-            doc.text(`${offerLetter.employeeName}`);
-            doc.text(`${offerLetter.employeeAddress}`);
-            doc.moveDown(1);
-            doc.text(`Subject: Offer of Employment`);
-            doc.moveDown(1);
-            // Body
-            doc
-                .font("Helvetica")
-                .text(`Dear ${offerLetter.employeeName},\n\nWe are pleased to offer you the position of ${offerLetter.employeeDesignation} at ${offerLetter.companyName}. ` +
-                `Your joining date will be ${offerLetter.employeeDateOfJoin}, and your total annual CTC will be ₹${offerLetter.employeeCtc}.\n\n` +
-                `This position will be based at our office located at ${offerLetter.companyAddress}. Please report to ${offerLetter.companyContactName}, ` +
-                `${offerLetter.companyPersonTitle}, on your first day. You may contact them at ${offerLetter.companyContactNumber} or ` +
-                `${offerLetter.companyPersonalEmail} for any further details.\n\n` +
-                `We are excited to have you join our team and look forward to a mutually beneficial relationship.\n\n` +
-                `Sincerely,\n\n${offerLetter.companyContactName}\n${offerLetter.companyPersonTitle}\n${offerLetter.companyName}`);
-            doc.moveDown(3);
-            doc
-                .fontSize(10)
-                .fillColor("#888888")
-                .text("This is a system-generated letter and does not require a signature.", { align: "center" });
-            doc.end();
-        }
-        catch (err) {
-            reject(err);
-        }
-    }));
+    try {
+        // Fetch logo and convert to base64
+        const logoUrl = "https://media.cakeresume.com/image/upload/s--k9CQtNTA--/c_pad,fl_png8,h_400,w_400/v1691154551/e6idc2sh97xdrmuafkp7.png";
+        const response = yield axios_1.default.get(logoUrl, { responseType: "arraybuffer" });
+        const logoBase64 = Buffer.from(response.data).toString("base64");
+        const htmlContent = (0, exports.generateOfferLetterHTML)(offerLetter, logoBase64);
+        // Launch Puppeteer and generate PDF
+        const browser = yield puppeteer_1.default.launch();
+        const page = yield browser.newPage();
+        yield page.setContent(htmlContent, { waitUntil: "networkidle0" });
+        const pdfBuffer = yield page.pdf({
+            format: "A4",
+            margin: { top: "40px", bottom: "60px", left: "40px", right: "40px" },
+        });
+        yield browser.close();
+        return Buffer.from(pdfBuffer);
+    }
+    catch (err) {
+        throw err;
+    }
 });
 exports.generateOfferLetterPDF = generateOfferLetterPDF;
+// export const generateOfferLetterPDF = async (
+//   offerLetter: IOfferLetter
+// ): Promise<Buffer> => {
+//   return new Promise<Buffer>(async (resolve, reject) => {
+//     try {
+//       // Fetch company logo
+//       const logoUrl =
+//         "https://media.cakeresume.com/image/upload/s--k9CQtNTA--/c_pad,fl_png8,h_400,w_400/v1691154551/e6idc2sh97xdrmuafkp7.png";
+//       // Download the logo image as a buffer
+//       const response = await axios.get(logoUrl, {
+//         responseType: "arraybuffer",
+//       });
+//       //   const logoBuffer = Buffer.from(response.data);
+//       //   const response = await axios.get(offerLetter.companyLogo, {
+//       //     responseType: "arraybuffer",
+//       //   });
+//       const logoBuffer = Buffer.from(response.data);
+//       const doc = new PDFDocument({ margin: 50 });
+//       const buffers: Buffer[] = [];
+//       doc.on("data", (chunk) => buffers.push(chunk));
+//       doc.on("end", () => resolve(Buffer.concat(buffers)));
+//       doc.on("error", (err: Error) => reject(err));
+//       // Company Logo
+//       const logoWidth = 80;
+//       const logoX = (doc.page.width - logoWidth) / 2;
+//       doc.image(logoBuffer, logoX, doc.y, { width: logoWidth });
+//       doc.moveDown(2);
+//       // Title
+//       doc
+//         .fontSize(18)
+//         .font("Helvetica-Bold")
+//         .fillColor("#003366")
+//         .text("Offer Letter", { align: "center" });
+//       doc.moveDown(1);
+//       // Date
+//       doc
+//         .fontSize(12)
+//         .fillColor("black")
+//         .text(`Date: ${offerLetter.offerLetterDate}`);
+//       doc.moveDown(1);
+//       // Employee Details
+//       doc.text(`To,`);
+//       doc.text(`${offerLetter.employeeName}`);
+//       doc.text(`${offerLetter.employeeAddress}`);
+//       doc.moveDown(1);
+//       doc.text(`Subject: Offer of Employment`);
+//       doc.moveDown(1);
+//       // Body
+//       doc
+//         .font("Helvetica")
+//         .text(
+//           `Dear ${offerLetter.employeeName},\n\nWe are pleased to offer you the position of ${offerLetter.employeeDesignation} at ${offerLetter.companyName}. ` +
+//             `Your joining date will be ${offerLetter.employeeDateOfJoin}, and your total annual CTC will be ₹${offerLetter.employeeCtc}.\n\n` +
+//             `This position will be based at our office located at ${offerLetter.companyAddress}. Please report to ${offerLetter.companyContactName}, ` +
+//             `${offerLetter.companyPersonTitle}, on your first day. You may contact them at ${offerLetter.companyContactNumber} or ` +
+//             `${offerLetter.companyPersonalEmail} for any further details.\n\n` +
+//             `We are excited to have you join our team and look forward to a mutually beneficial relationship.\n\n` +
+//             `Sincerely,\n\n${offerLetter.companyContactName}\n${offerLetter.companyPersonTitle}\n${offerLetter.companyName}`
+//         );
+//       doc.moveDown(3);
+//       doc
+//         .fontSize(10)
+//         .fillColor("#888888")
+//         .text(
+//           "This is a system-generated letter and does not require a signature.",
+//           { align: "center" }
+//         );
+//       doc.end();
+//     } catch (err) {
+//       reject(err);
+//     }
+//   });
+// };
