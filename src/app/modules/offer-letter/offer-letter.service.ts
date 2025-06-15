@@ -97,22 +97,26 @@ export const offerLetterService = {
 
     return htmlContent;
   },
-  async acknowledgeById(employeeEmail: string) {
-    const offerLetter = await OfferLetter.findOneAndUpdate(
-      { employeeEmail },
-      {
-        acknowledge: true,
-      },
-      {
-        upsert: true,
-      }
-    );
-    if (!offerLetter) {
-      throw new AppError(StatusCodes.NOT_FOUND, "Offer letter not found!");
-    }
+ async acknowledgeById(employeeEmail: string) {
+  // First, check if the offer letter exists and its current acknowledge status
+  const offerLetter = await OfferLetter.findOne({ employeeEmail });
 
-    return null;
-  },
+  if (!offerLetter) {
+    throw new AppError(StatusCodes.NOT_FOUND, "Offer letter not found!");
+  }
+
+  if (offerLetter.acknowledge) {
+    // Already acknowledged → no update needed
+    return { message: "Offer letter already acknowledged" };
+  }
+
+  // Update acknowledge to true
+  offerLetter.acknowledge = true;
+  await offerLetter.save();
+
+  return { message: "Offer letter acknowledged successfully" };
+}
+,
   async createOfferLetter(
     offerLetterData: IOfferLetter,
     authUser: IJwtPayload

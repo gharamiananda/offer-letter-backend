@@ -61,7 +61,7 @@ export const offerLetterController = {
     sendResponse(res, {
       statusCode: StatusCodes.CREATED,
       success: true,
-      message: "Offer Letter retrived succesfully",
+      message: "Offer letter acknowledged successfully",
       data: null,
     });
   },
