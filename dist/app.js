@@ -32,7 +32,7 @@ app.get("/", (req, res, next) => {
     const serverUptime = os_1.default.uptime();
     res.status(http_status_codes_1.StatusCodes.OK).json({
         success: true,
-        message: "Welcome to the Team Forge",
+        message: "Welcome to the Next Mart",
         version: "1.0.0",
         clientDetails: {
             ipAddress: clientIp,
