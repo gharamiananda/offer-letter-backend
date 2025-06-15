@@ -41,6 +41,9 @@ router.get(
   offerLetterController.getOfferLetterById
 );
 
-router.get("/offer-acknowledge/:id", offerLetterController.acknowledgeById);
+router.get(
+  "/offer-acknowledge/:employeeEmail",
+  offerLetterController.acknowledgeById
+);
 
 export const OfferLetterRoutes = router;

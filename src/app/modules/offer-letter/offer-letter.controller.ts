@@ -56,7 +56,7 @@ export const offerLetterController = {
     });
   },
   async acknowledgeById(req: Request, res: Response) {
-    await offerLetterService.acknowledgeById(req.params.id);
+    await offerLetterService.acknowledgeById(req.params.employeeEmail);
 
     sendResponse(res, {
       statusCode: StatusCodes.CREATED,

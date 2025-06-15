@@ -99,7 +99,7 @@ exports.offerLetterController = {
     },
     acknowledgeById(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield offer_letter_service_1.offerLetterService.acknowledgeById(req.params.id);
+            yield offer_letter_service_1.offerLetterService.acknowledgeById(req.params.employeeEmail);
             (0, sendResponse_1.default)(res, {
                 statusCode: http_status_codes_1.StatusCodes.CREATED,
                 success: true,

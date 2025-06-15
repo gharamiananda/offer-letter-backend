@@ -97,10 +97,16 @@ export const offerLetterService = {
 
     return htmlContent;
   },
-  async acknowledgeById(id: string) {
-    const offerLetter = await OfferLetter.findByIdAndUpdate(id, {
-      acknowledge: true,
-    });
+  async acknowledgeById(employeeEmail: string) {
+    const offerLetter = await OfferLetter.findOneAndUpdate(
+      { employeeEmail },
+      {
+        acknowledge: true,
+      },
+      {
+        upsert: true,
+      }
+    );
     if (!offerLetter) {
       throw new AppError(StatusCodes.NOT_FOUND, "Offer letter not found!");
     }

@@ -34,7 +34,7 @@ app.get("/", (req: Request, res: Response, next: NextFunction) => {
 
   res.status(StatusCodes.OK).json({
     success: true,
-    message: "Welcome to the Team Forge",
+    message: "Welcome to the TeamForge",
     version: "1.0.0",
     clientDetails: {
       ipAddress: clientIp,

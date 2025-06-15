@@ -83,10 +83,12 @@ exports.offerLetterService = {
             return htmlContent;
         });
     },
-    acknowledgeById(id) {
+    acknowledgeById(employeeEmail) {
         return __awaiter(this, void 0, void 0, function* () {
-            const offerLetter = yield offer_letter_model_1.default.findByIdAndUpdate(id, {
+            const offerLetter = yield offer_letter_model_1.default.findOneAndUpdate({ employeeEmail }, {
                 acknowledge: true,
+            }, {
+                upsert: true,
             });
             if (!offerLetter) {
                 throw new appError_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, "Offer letter not found!");

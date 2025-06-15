@@ -1,9 +1,9 @@
 {
-  "name": "Teamforge",
+  "name": "TeamForge",
   "version": "1.0.0",
   "description": "A e-commerce web application server.",
   "main": "server.js",
-  "repository": "https://github.com/Programming-Hero-Next-Level-Development/Teamforge.git",
+  "repository": "https://github.com/Programming-Hero-Next-Level-Development/TeamForge.git",
   "author": "Next Level Web Development Team",
   "license": "MIT",
   "scripts": {
