@@ -494,8 +494,13 @@ export const generateOfferLetterPDF = async (
 
     const htmlContent = generateOfferLetterHTML(offerLetter, logoBase64);
 
-    // Launch Puppeteer and generate PDF
-    const browser = await puppeteer.launch();
+    // Launch Puppeteer
+    const browser = await puppeteer.launch({
+      headless: true,
+      executablePath: process.env.CHROME_BIN || undefined,
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    });
+
     const page = await browser.newPage();
     await page.setContent(htmlContent, { waitUntil: "networkidle0" });
 
@@ -507,6 +512,7 @@ export const generateOfferLetterPDF = async (
     await browser.close();
     return Buffer.from(pdfBuffer);
   } catch (err) {
+    console.error("PDF generation failed:", err);
     throw err;
   }
 };
@@ -524,7 +530,11 @@ export const generatePayslipPDF = async (
     const htmlContent = generatePayslipHTML(offerLetter, logoBase64);
 
     // Launch Puppeteer and generate PDF
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({
+      headless: true,
+      executablePath: process.env.CHROME_BIN || undefined,
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    });
     const page = await browser.newPage();
     await page.setContent(htmlContent, { waitUntil: "networkidle0" });
 
