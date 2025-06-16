@@ -25,4 +25,5 @@ export interface IOfferLetter extends Document {
   status: offerLetterStatus;
   generateByUser: Schema.Types.ObjectId;
   acknowledge: boolean;
+  dateOfAcknowledge: Date;
 }

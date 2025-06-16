@@ -55,16 +55,20 @@ export const offerLetterController = {
       data: result,
     });
   },
-  async acknowledgeById(req: Request, res: Response) {
-    await offerLetterService.acknowledgeById(req.params.employeeEmail);
+  acknowledgeById: catchAsync(async (req, res) => {
+    // async acknowledgeById(req: Request, res: Response) {
+    const message = await offerLetterService.acknowledgeById(
+      req.params.employeeEmail
+    );
 
     sendResponse(res, {
       statusCode: StatusCodes.CREATED,
       success: true,
-      message: "Offer letter acknowledged successfully",
+      message: message.message || "Offer letter acknowledged successfully",
       data: null,
     });
-  },
+  }),
+
   async createBulkOfferLetter(req: Request, res: Response) {
     const file = req.file;
     if (!file) {

@@ -12,6 +12,7 @@ import { ReviewRoutes } from "../modules/review/review.routes";
 import { FlashSaleRoutes } from "../modules/flashSell/flashSale.routes";
 import { MetaRoutes } from "../modules/meta/meta.route";
 import { OfferLetterRoutes } from "../modules/offer-letter/offer-letter.routes";
+import { PayslipLetterRoutes } from "../modules/payslip/payslip.routes";
 const router = Router();
 
 const moduleRoutes = [
@@ -22,6 +23,10 @@ const moduleRoutes = [
   {
     path: "/offer-letter",
     route: OfferLetterRoutes,
+  },
+  {
+    path: "/payslip",
+    route: PayslipLetterRoutes,
   },
   {
     path: "/auth",

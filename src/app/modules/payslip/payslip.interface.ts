@@ -1,0 +1,33 @@
+import { Schema } from "mongoose";
+
+export interface IPaySlip extends Document {
+  employeeName: string;
+  employeeId: string;
+  month: number;
+  year: number;
+  employeeDesignation: string;
+  employeeDepartment: string;
+  employeeUAN: number;
+  employeeESINO: number;
+  basicSalary: number;
+  houseRentAllowance: number;
+  conveyanceAllowance: number;
+  training: number;
+  grossSalary: number;
+  netPay: number;
+  salaryOfEmployee: number;
+  totalWorkingDays: number;
+  totalPresentDays: number;
+  totalAbsent: number;
+  uninformedLeaves: number;
+  halfDay: number;
+  calculatedSalary: number;
+  EPF: number;
+  ESI: number;
+  professionalTax: number;
+  totalDeductions: number;
+  employeeEmail: string;
+  companyName: string;
+  dateOfPayment: string;
+  generateByUser: Schema.Types.ObjectId;
+}

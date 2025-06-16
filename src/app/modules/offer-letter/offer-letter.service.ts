@@ -1,16 +1,15 @@
 import { StatusCodes } from "http-status-codes";
+import pLimit from "p-limit";
 import QueryBuilder from "../../builder/QueryBuilder";
-import AppError from "../../errors/appError";
 import { EmailHelper } from "../../utils/emailHelper";
 import {
   generateOfferLetterHTML,
   generateOfferLetterPDF,
-  generateOrderInvoicePDF,
 } from "../../utils/generateOrderInvoicePDF";
 import { IJwtPayload } from "../auth/auth.interface";
 import { IOfferLetter, offerLetterStatus } from "./offer-letter.interface";
 import OfferLetter from "./offer-letter.model";
-import pLimit from "p-limit";
+import AppError from "../../errors/appError";
 
 const limit = pLimit(10); // Max 10 concurrent emails
 async function processOneOfferLetter(
@@ -97,28 +96,41 @@ export const offerLetterService = {
 
     return htmlContent;
   },
- async acknowledgeById(employeeEmail: string) {
-  // First, check if the offer letter exists and its current acknowledge status
-  const offerLetter = await OfferLetter.findOne({ employeeEmail });
+  async acknowledgeById(employeeEmail: string) {
+    // First, check if the offer letter exists and its current acknowledge status
+    const offerLetter = await OfferLetter.findOne({ employeeEmail });
 
-  if (!offerLetter) {
-    throw new AppError(StatusCodes.NOT_FOUND, "Offer letter not found!");
-  }
+    if (!offerLetter) {
+      throw new AppError(StatusCodes.NOT_FOUND, "Offer letter not found!");
+    }
 
-  if (offerLetter.acknowledge) {
-    // Already acknowledged → no update needed
-    return { message: "Offer letter already acknowledged" };
-  }else{
+    if (offerLetter.acknowledge) {
+      return {
+        message: `Offer letter already acknowledged on ${
+          offerLetter.dateOfAcknowledge
+            ? offerLetter.dateOfAcknowledge.toLocaleString("en-IN", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })
+            : "unknown date"
+        }`,
+      };
+    }
 
-  // Update acknowledge to true
-  offerLetter.acknowledge = true;
-  await offerLetter.save();
+    // Update acknowledge to true
+    offerLetter.acknowledge = true;
+    offerLetter.dateOfAcknowledge = new Date();
 
-  return { message: "Offer letter acknowledged successfully" };
-  }
+    await offerLetter.save();
 
-}
-,
+    return {
+      message:
+        "Thank you for your confirmation. Your acknowledgement has been recorded successfully.",
+    };
+  },
   async createOfferLetter(
     offerLetterData: IOfferLetter,
     authUser: IJwtPayload
@@ -176,60 +188,4 @@ export const offerLetterService = {
 
     return results;
   },
-
-  // async updateOfferLetter(
-  //   productId: string,
-  //   payload: Partial<IProduct>,
-  //   productImages: IImageFiles,
-  //   authUser: IJwtPayload
-  // ) {
-  //   const { images } = productImages;
-
-  //   const user = await User.findById(authUser.userId);
-  //   const shop = await Shop.findOne({ user: user?._id });
-  //   const product = await Product.findOne({
-  //     shop: shop?._id,
-  //     _id: productId,
-  //   });
-
-  //   if (!user?.isActive) {
-  //     throw new AppError(StatusCodes.BAD_REQUEST, "User is not active");
-  //   }
-  //   if (!shop) {
-  //     throw new AppError(StatusCodes.BAD_REQUEST, "You don't have a shop");
-  //   }
-  //   if (!shop.isActive) {
-  //     throw new AppError(StatusCodes.BAD_REQUEST, "Your shop is inactive");
-  //   }
-  //   if (!product) {
-  //     throw new AppError(StatusCodes.NOT_FOUND, "Product Not Found");
-  //   }
-
-  //   if (images && images.length > 0) {
-  //     payload.imageUrls = images.map((image) => image.path);
-  //   }
-
-  //   return await Product.findByIdAndUpdate(productId, payload, { new: true });
-  // },
-
-  // async deleteOfferLetter(productId: string, authUser: IJwtPayload) {
-  //   const user = await User.findById(authUser.userId);
-  //   const shop = await Shop.findOne({ user: user?._id });
-  //   const product = await Product.findOne({
-  //     shop: shop?._id,
-  //     _id: productId,
-  //   });
-
-  //   if (!user?.isActive) {
-  //     throw new AppError(StatusCodes.BAD_REQUEST, "User is not active");
-  //   }
-  //   if (!shop) {
-  //     throw new AppError(StatusCodes.BAD_REQUEST, "You don't have a shop");
-  //   }
-  //   if (!product) {
-  //     throw new AppError(StatusCodes.NOT_FOUND, "Product Not Found");
-  //   }
-
-  //   return await Product.findByIdAndDelete(productId);
-  // },
 };

@@ -1,31 +1,24 @@
 import { Router } from "express";
-import { offerLetterController } from "./offer-letter.controller";
 import auth from "../../middleware/auth";
 import { UserRole } from "../user/user.interface";
-// import { multerUpload } from "../../config/multer.config";
-import { parseBody } from "../../middleware/bodyParser";
+import { offerLetterController } from "./payslip.controller";
+import multer from "multer";
 
 const router = Router();
 
-// Define routes
-// router.get("/", offerLetterController.getAll);
 router.post(
   "/",
   auth(UserRole.ADMIN, UserRole.USER),
-  // validateRequest(categoryValidation.createCategoryValidationSchema),
   offerLetterController.createOfferLetter
 );
-import multer from "multer";
 
 const storage = multer.memoryStorage();
 const multerUpload = multer({ storage });
 
 router.post(
-  "/upload-offer-letter-csv",
+  "/upload-payslip-csv",
   auth(UserRole.ADMIN, UserRole.USER),
-  multerUpload.single("multipleOfferLetterCsv"),
-
-  // validateRequest(categoryValidation.createCategoryValidationSchema),
+  multerUpload.single("multiplePayslipCsv"),
   offerLetterController.createBulkOfferLetter
 );
 router.get(
@@ -41,9 +34,4 @@ router.get(
   offerLetterController.getOfferLetterById
 );
 
-router.post(
-  "/offer-acknowledge/:employeeEmail",
-  offerLetterController.acknowledgeById
-);
-
-export const OfferLetterRoutes = router;
+export const PayslipLetterRoutes = router;

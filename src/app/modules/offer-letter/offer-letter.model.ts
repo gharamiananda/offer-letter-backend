@@ -30,12 +30,6 @@ const offerLetterSchema = new Schema<IOfferLetter>(
     companyLogo: {
       type: String,
       default: "",
-      // validate: {
-      //   validator: function (v: string) {
-      //     return /^(http(s)?:\/\/.*\.(?:png|jpg|jpeg))$/.test(v);
-      //   },
-      //   message: "Invalid company logo URL format.",
-      // },
     },
     companyName: {
       type: String,
@@ -44,6 +38,10 @@ const offerLetterSchema = new Schema<IOfferLetter>(
     acknowledge: {
       type: Boolean,
       default: false,
+    },
+    dateOfAcknowledge: {
+      type: Date,
+      default: null,
     },
     status: {
       type: String,

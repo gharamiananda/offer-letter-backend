@@ -85,15 +85,19 @@ exports.offerLetterService = {
     },
     acknowledgeById(employeeEmail) {
         return __awaiter(this, void 0, void 0, function* () {
-            const offerLetter = yield offer_letter_model_1.default.findOneAndUpdate({ employeeEmail }, {
-                acknowledge: true,
-            }, {
-                upsert: true,
-            });
+            // First, check if the offer letter exists and its current acknowledge status
+            const offerLetter = yield offer_letter_model_1.default.findOne({ employeeEmail });
             if (!offerLetter) {
                 throw new appError_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, "Offer letter not found!");
             }
-            return null;
+            if (offerLetter.acknowledge) {
+                // Already acknowledged → no update needed
+                return { message: "Offer letter already acknowledged" };
+            }
+            // Update acknowledge to true
+            offerLetter.acknowledge = true;
+            yield offerLetter.save();
+            return { message: "Offer letter acknowledged successfully" };
         });
     },
     createOfferLetter(offerLetterData, authUser) {

@@ -14,6 +14,7 @@ const review_routes_1 = require("../modules/review/review.routes");
 const flashSale_routes_1 = require("../modules/flashSell/flashSale.routes");
 const meta_route_1 = require("../modules/meta/meta.route");
 const offer_letter_routes_1 = require("../modules/offer-letter/offer-letter.routes");
+const payslip_routes_1 = require("../modules/payslip/payslip.routes");
 const router = (0, express_1.Router)();
 const moduleRoutes = [
     {
@@ -23,6 +24,10 @@ const moduleRoutes = [
     {
         path: "/offer-letter",
         route: offer_letter_routes_1.OfferLetterRoutes,
+    },
+    {
+        path: "/payslip",
+        route: payslip_routes_1.PayslipLetterRoutes,
     },
     {
         path: "/auth",

@@ -46,27 +46,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.offerLetterController = void 0;
-const offer_letter_service_1 = require("./offer-letter.service");
-const sendResponse_1 = __importDefault(require("../../utils/sendResponse"));
 const http_status_codes_1 = require("http-status-codes");
-const catchAsync_1 = __importDefault(require("../../utils/catchAsync"));
 const XLSX = __importStar(require("xlsx"));
 const appError_1 = __importDefault(require("../../errors/appError"));
+const catchAsync_1 = __importDefault(require("../../utils/catchAsync"));
+const sendResponse_1 = __importDefault(require("../../utils/sendResponse"));
+const payslip_service_1 = require("./payslip.service");
 exports.offerLetterController = {
-    // async getAll() {
-    //   return catchAsync(async (req, res) => {
-    //     const result = await offerLetterService.getOfferLetterAll(req.query);
-    //     sendResponse(res, {
-    //       statusCode: StatusCodes.OK,
-    //       success: true,
-    //       message: "OfferLetter are retrieved successfully",
-    //       meta: result.meta,
-    //       data: result.result,
-    //     });
-    //   });
-    // },
     getOfferLetterAll: (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        const result = yield offer_letter_service_1.offerLetterService.getOfferLetterAll(req.query);
+        const result = yield payslip_service_1.offerLetterService.getOfferLetterAll(req.query);
         (0, sendResponse_1.default)(res, {
             statusCode: http_status_codes_1.StatusCodes.OK,
             success: true,
@@ -77,7 +65,7 @@ exports.offerLetterController = {
     })),
     createOfferLetter(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield offer_letter_service_1.offerLetterService.createOfferLetter(req.body, req.user);
+            const result = yield payslip_service_1.offerLetterService.createOfferLetter(req.body, req.user);
             (0, sendResponse_1.default)(res, {
                 statusCode: http_status_codes_1.StatusCodes.CREATED,
                 success: true,
@@ -88,23 +76,12 @@ exports.offerLetterController = {
     },
     getOfferLetterById(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield offer_letter_service_1.offerLetterService.getOfferLetterById(req.params.id);
+            const result = yield payslip_service_1.offerLetterService.getOfferLetterById(req.params.id);
             (0, sendResponse_1.default)(res, {
                 statusCode: http_status_codes_1.StatusCodes.CREATED,
                 success: true,
                 message: "Offer Letter retrived succesfully",
                 data: result,
-            });
-        });
-    },
-    acknowledgeById(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            yield offer_letter_service_1.offerLetterService.acknowledgeById(req.params.employeeEmail);
-            (0, sendResponse_1.default)(res, {
-                statusCode: http_status_codes_1.StatusCodes.CREATED,
-                success: true,
-                message: "Offer letter acknowledged successfully",
-                data: null,
             });
         });
     },
@@ -118,7 +95,7 @@ exports.offerLetterController = {
             const workbook = XLSX.read(file.buffer, { type: "buffer" });
             const sheetName = workbook.SheetNames[0];
             const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
-            const results = yield offer_letter_service_1.offerLetterService.createBulkOfferLetters(rows, req.user);
+            const results = yield payslip_service_1.offerLetterService.createBulkOfferLetters(rows, req.user);
             (0, sendResponse_1.default)(res, {
                 statusCode: http_status_codes_1.StatusCodes.OK,
                 success: true,
@@ -127,30 +104,4 @@ exports.offerLetterController = {
             });
         });
     },
-    // async createBulkOfferLetter(req: Request, res: Response) {
-    //   const offerLetters: IOfferLetter[] = req.body;
-    //   const file = req.file;
-    //   if (!file) {
-    //     return res.status(400).json({ message: "Empty or invalid Excel file" });
-    //   }
-    //   const workbook = XLSX.readFile(file.path);
-    //   const sheetName = workbook.SheetNames[0];
-    //   const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
-    //   if (!Array.isArray(rows) || rows.length === 0) {
-    //     return res.status(400).json({ message: "Empty or invalid Excel file" });
-    //   }
-    //   console.log(rows, "rows");
-    //   return;
-    //   const results = await offerLetterService.createBulkOfferLetters(
-    //     offerLetters,
-    //     req.user as IJwtPayload
-    //   );
-    //   res.status(201).json({
-    //     success: true,
-    //     message: "Bulk offer letters processed",
-    //     total: offerLetters.length,
-    //     sent: results.filter((r) => r.status === offerLetterStatus.SENT).length,
-    //     failed: results.filter((r) => r.status === offerLetterStatus.FAILED),
-    //   });
-    // },
 };

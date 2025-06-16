@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateOfferLetterPDF = exports.generateOfferLetterHTML = exports.generateOrderInvoicePDF = void 0;
+exports.generatePayslipPDF = exports.generateOfferLetterPDF = exports.generatePayslipHTML = exports.generateOfferLetterHTML = exports.generateOrderInvoicePDF = void 0;
 const pdfkit_1 = __importDefault(require("pdfkit"));
 const axios_1 = __importDefault(require("axios"));
 const puppeteer_1 = __importDefault(require("puppeteer"));
@@ -333,6 +333,139 @@ const generateOfferLetterHTML = (offerLetter, logoBase64) => {
 `;
 };
 exports.generateOfferLetterHTML = generateOfferLetterHTML;
+const generatePayslipHTML = (offerLetter, logoBase64) => {
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Offer Letter - Woodrock Softonic Pvt Ltd</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      line-height: 1.6;
+      color: #333;
+    }
+    .letter {
+      max-width: 800px;
+      margin: auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+    }
+    .header, .footer {
+      text-align: center;
+    }
+    .section-title {
+      font-weight: bold;
+      margin-top: 20px;
+      text-decoration: underline;
+    }
+    .terms, .zte-policy, .ul-policy {
+      font-size: 0.95em;
+    }
+    ul {
+      padding-left: 20px;
+    }
+    .signature {
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+  <div class="letter">
+    <div class="header">
+      <h2>WOODROCK SOFTONIC PVT LTD</h2>
+    </div>
+
+    <p>DEAR  ${offerLetter.employeeName}</p>
+    <p style="text-align:right;">Date: 09-06-2025</p>
+
+    <p>Congratulations! With reference to your application and subsequent interview with us, we are pleased to offer you the position of <strong>${offerLetter.employeeDesignation}</strong> with Woodrock Softonic Private Limited. Your beginning monthly remuneration will be <strong>INR ${offerLetter.basicSalary} /-</strong>.</p>
+
+    <ul>
+      <li>Shift Allocated: Full Time</li>
+      <li>Shift Timing Allocated: Flexible Timing</li>
+      <li>Reporting Timing: 20 mins before login</li>
+      <li>Joining Location: Kolkata</li>
+      <li>Venue Details: Work from office / Work from home</li>
+    </ul>
+
+    <p>The offer has been made based on information furnished by you. However, if there is a discrepancy in any document or certificate provided by you as proof, we reserve the right to review the offer of employment. Employment as per this offer is subject to your being medically fit.</p>
+
+    <p>Please sign and return a duplicate copy of this letter in token of your acceptance. We congratulate you on your appointment and wish you a long and successful career with us. We are confident that your contribution will take us further in our journey towards becoming world leaders. We assure you of our support for your professional development and growth. We look forward to a mutually rewarding term with us.</p>
+
+    <p>Regards,<br>Simran Jha || HR Department<br>Woodrock Softonic Private Limited<br>Mail: Simran.jha@woodrockgroup.in</p>
+
+    <div class="section-title">Terms & Conditions</div>
+    <div class="terms">
+      <ul>
+        <li>Attendance cycle: 1st to 31st, salary date: 15th of next month.</li>
+        <li>Training: 40 days including OJT.</li>
+        <li>P tax deduction as per norms.</li>
+        <li>Flexible shift allocation, no fixed timing.</li>
+        <li>Unapproved leave/absenteeism: salary may be held.</li>
+        <li>Salary through Cheque / NEFT / IMPS.</li>
+        <li>Probation period: 90 days.</li>
+        <li>Absenteeism between 1st to 15th: salary hold until rejoining + fortnight work.</li>
+        <li>Termination: Immediate for performance/disciplinary issues.</li>
+        <li>Resignation: 30 days’ notice required or no dues/documents released.</li>
+        <li>Late coming: 3 lates = 1 day absent.</li>
+      </ul>
+    </div>
+
+    <div class="section-title">ZTE Policy</div>
+    <div class="zte-policy">
+      <table border="1" cellspacing="0" cellpadding="5">
+        <tr>
+          <th>Parameter</th>
+          <th>Target</th>
+          <th>Consequence</th>
+        </tr>
+        <tr>
+          <td>CMB</td>
+          <td>0</td>
+          <td>Separation under ZT</td>
+        </tr>
+        <tr>
+          <td>CNR</td>
+          <td>0</td>
+          <td>Separation under ZT</td>
+        </tr>
+        <tr>
+          <td>Rude/Sarcastic Call</td>
+          <td>0</td>
+          <td>Separation under ZT</td>
+        </tr>
+        <tr>
+          <td>Re-Assignment Case</td>
+          <td>0</td>
+          <td>Separation under ZT</td>
+        </tr>
+        <tr>
+          <td>Invalid/Forceful Call Disconnection</td>
+          <td>0</td>
+          <td>Separation under ZT</td>
+        </tr>
+      </table>
+      <p>Salary for the month with ZT violation will not be processed. No release letter/experience certificate for ZT cases.</p>
+    </div>
+
+    <div class="section-title">Uninformed Leave (UL) Policy</div>
+    <div class="ul-policy">
+      <p>Each uninformed leave: 2 days Loss of Pay (LOP). Repeated ULs may lead to disciplinary action.</p>
+    </div>
+
+    <div class="signature">
+      <p>I ${offerLetter.employeeName}, hereby accept the offer & agree totally to the terms & conditions.</p>
+      <p>Employee Signature: ___________________</p>
+    </div>
+  </div>
+</body>
+</html>
+`;
+};
+exports.generatePayslipHTML = generatePayslipHTML;
 const generateOfferLetterPDF = (offerLetter) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // Fetch logo and convert to base64
@@ -356,6 +489,29 @@ const generateOfferLetterPDF = (offerLetter) => __awaiter(void 0, void 0, void 0
     }
 });
 exports.generateOfferLetterPDF = generateOfferLetterPDF;
+const generatePayslipPDF = (offerLetter) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        // Fetch logo and convert to base64
+        const logoUrl = "https://media.cakeresume.com/image/upload/s--k9CQtNTA--/c_pad,fl_png8,h_400,w_400/v1691154551/e6idc2sh97xdrmuafkp7.png";
+        const response = yield axios_1.default.get(logoUrl, { responseType: "arraybuffer" });
+        const logoBase64 = Buffer.from(response.data).toString("base64");
+        const htmlContent = (0, exports.generatePayslipHTML)(offerLetter, logoBase64);
+        // Launch Puppeteer and generate PDF
+        const browser = yield puppeteer_1.default.launch();
+        const page = yield browser.newPage();
+        yield page.setContent(htmlContent, { waitUntil: "networkidle0" });
+        const pdfBuffer = yield page.pdf({
+            format: "A4",
+            margin: { top: "40px", bottom: "60px", left: "40px", right: "40px" },
+        });
+        yield browser.close();
+        return Buffer.from(pdfBuffer);
+    }
+    catch (err) {
+        throw err;
+    }
+});
+exports.generatePayslipPDF = generatePayslipPDF;
 // export const generateOfferLetterPDF = async (
 //   offerLetter: IOfferLetter
 // ): Promise<Buffer> => {
