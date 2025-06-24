@@ -11,15 +11,9 @@ pids
 *.seed
 *.pid.lock
 
-# Environment Variables
-.env
-
 # Node modules
 node_modules/
 
-# Build directories
-dist/
-build/
 
 # Dependency directories
 jspm_packages/
@@ -47,6 +41,5 @@ coverage/
 # Test output
 .nyc_output/
 
-.vercel
 .DS_Store
 

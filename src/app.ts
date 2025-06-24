@@ -6,7 +6,7 @@ import { StatusCodes } from "http-status-codes";
 import router from "./app/routes";
 import globalErrorHandler from "./app/middleware/globalErrorHandler";
 import notFound from "./app/middleware/notFound";
-import seedAdmin from "./app/DB/seed";
+// import seedAdmin from "./app/DB/seed";
 // import seedAdmin from './app/DB/seed';
 // import { sslService } from './app/modules/sslcommerz/sslcommerz.service';
 
@@ -22,7 +22,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/v1", router);
 
-seedAdmin();
+// seedAdmin();
 
 // Test route
 app.get("/", (req: Request, res: Response, next: NextFunction) => {
