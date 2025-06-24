@@ -13,15 +13,15 @@ const offerLetterSchema = new Schema<IOfferLetter>(
     },
     employeeAddress: {
       type: String,
-      required: true,
+      default: "",
     },
     employeeDesignation: {
       type: String,
-      required: true,
+      default: "",
     },
     employeeDateOfJoin: {
       type: String,
-      required: true,
+      default: "",
     },
     employeeCtc: {
       type: String,
@@ -33,7 +33,7 @@ const offerLetterSchema = new Schema<IOfferLetter>(
     },
     companyName: {
       type: String,
-      required: true,
+      default: "",
     },
     acknowledge: {
       type: Boolean,
@@ -51,15 +51,15 @@ const offerLetterSchema = new Schema<IOfferLetter>(
     },
     companyAddress: {
       type: String,
-      required: true,
+      default: "",
     },
     offerLetterDate: {
       type: String,
-      required: true,
+      default: "",
     },
     emailSubject: {
       type: String,
-      required: true,
+      default: "",
     },
     emailMessage: {
       type: String,
@@ -67,31 +67,20 @@ const offerLetterSchema = new Schema<IOfferLetter>(
     },
     companyContactName: {
       type: String,
-      required: true,
+      default: "",
     },
     companyPersonTitle: {
       type: String,
-      required: true,
+      default: "",
     },
     companyContactNumber: {
       type: String,
-      validate: {
-        validator: function (v: string) {
-          return /^\d{10,15}$/.test(v);
-        },
-        message: "Contact number must be between 10 to 15 digits.",
-      },
-      required: true,
+
+      default: "0",
     },
     companyPersonalEmail: {
       type: String,
-      validate: {
-        validator: function (v: string) {
-          return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
-        },
-        message: "Invalid email format.",
-      },
-      required: true,
+      default: "",
     },
     generateByUser: {
       type: Schema.Types.ObjectId,
