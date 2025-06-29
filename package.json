@@ -14,6 +14,7 @@
     "deploy": "yarn build && vercel && vercel --prod"
   },
   "dependencies": {
+    "@netlify/functions": "^4.1.8",
     "@types/nodemailer": "^6.4.17",
     "axios": "^1.7.9",
     "bcrypt": "^5.1.1",
@@ -32,6 +33,7 @@
     "p-limit": "^6.2.0",
     "pdfkit": "^0.16.0",
     "puppeteer": "^24.10.1",
+    "serverless-http": "^3.2.0",
     "sslcommerz-lts": "^1.1.0",
     "ua-parser-js": "^2.0.0",
     "xlsx": "^0.18.5",
@@ -41,7 +43,7 @@
     "@types/bcrypt": "^5.0.2",
     "@types/cookie-parser": "^1.4.8",
     "@types/cors": "^2.8.17",
-    "@types/express": "^5.0.0",
+    "@types/express": "^5.0.3",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/multer": "^1.4.12",
     "@types/node": "^22.10.1",
