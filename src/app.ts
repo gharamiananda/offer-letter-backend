@@ -1,3 +1,4 @@
+import serverless from "serverless-http";
 import cors from "cors";
 import express, { Application, NextFunction, Request, Response } from "express";
 import cookieParser from "cookie-parser";
@@ -58,5 +59,7 @@ app.use(globalErrorHandler);
 
 //Not Found
 app.use(notFound);
+
+export const handler = serverless(app);
 
 export default app; // Export the app for use in server.ts
