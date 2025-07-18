@@ -1,0 +1,154 @@
+import axios from "axios";
+
+import puppeteer from "puppeteer";
+import { IExperienceLetter } from "../../../modules/experience-letter/experience-letter.interface";
+export const generateExperienceLetterHTML = (
+  experienceLetter: IExperienceLetter,
+  logoBase64: string
+): string => {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Experience Letter - Woodrock Softonic Pvt Ltd</title>
+  <style>
+    @page {
+      size: A4;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: white;
+      -webkit-print-color-adjust: exact;
+    }
+
+    .page {
+      width: 210mm;
+      height: 297mm;
+      position: relative;
+      box-sizing: border-box;
+      padding: 40px;
+    }
+
+   
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    .logo-text {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .location {
+      font-size: 14px;
+      text-align: right;
+    }
+
+    .title {
+      text-align: center;
+      margin: 40px 0 20px 0;
+      font-size: 20px;
+      font-weight: bold;
+      text-decoration: underline;
+    }
+
+    .content {
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    .highlight {
+      color: red;
+      font-weight: bold;
+    }
+
+    .signature {
+      margin-top: 60px;
+      font-size: 16px;
+    }
+
+    .signature img {
+      width: 150px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+
+    <div class="header">
+      <div>
+        <div class="logo-text">WOODROCK SOFTONIC Private Limited</div>
+        <div>KOLKATA, WESTBENGAL</div>
+      </div>
+      <div>
+         <img src="https://media.cakeresume.com/image/upload/s--k9CQtNTA--/c_pad,fl_png8,h_400,w_400/v1691154551/e6idc2sh97xdrmuafkp7.png" alt="Company Logo" width="80" />
+      </div>
+    </div>
+
+    <div class="title">Experience Letter</div>
+
+    <div class="content">
+      <p>To whom it may concern,</p>
+
+      <p>This is to certify that <span class="highlight">${experienceLetter.employeeName}</span> has served at <strong>Woodrock Softonic Private Limited</strong> firm for the period of <span class="highlight">${experienceLetter.employeeDateOfJoin}</span> to <span class="highlight">${experienceLetter.employeeDateOfResign}</span>. At the time of leaving this Organization, she held the position of <strong>${experienceLetter.employeeDesignation}</strong>.</p>
+
+      <p>Throughout her employment, <span class="highlight">${experienceLetter.employeeName}</span> demonstrated a high level of professionalism, dedication, and competence in her work. We acknowledge and appreciate her hard work, commitment, and positive attitude during their time with us.</p>
+
+      <p>We wish her all the best in their future endeavor and have no problem with her joining any other company.</p>
+
+      <div class="signature">
+        <p>For Woodrock Softonic Private Limited</p>
+        <img src="https://res.cloudinary.com/dri1mh3xh/image/upload/v1750698006/mhyrewrvtfgpqz21lfo7.jpg" alt="Signature" />
+        <p><strong>Simran Jha || HR Department</strong></p>
+        <p><strong>Woodrock Softonic Pvt Ltd</strong></p>
+        <p>Email: <a href="mailto:simran.jha@woodrockgroup.in">simran.jha@woodrockgroup.in</a></p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+`;
+};
+export const generateExperienceLetterPDF = async (
+  offerLetter: IExperienceLetter
+): Promise<Buffer> => {
+  try {
+    // Fetch logo and convert to base64
+    const logoUrl =
+      "https://media.cakeresume.com/image/upload/s--k9CQtNTA--/c_pad,fl_png8,h_400,w_400/v1691154551/e6idc2sh97xdrmuafkp7.png";
+    const response = await axios.get(logoUrl, { responseType: "arraybuffer" });
+    const logoBase64 = Buffer.from(response.data).toString("base64");
+
+    const htmlContent = generateExperienceLetterHTML(offerLetter, logoBase64);
+
+    // Launch Puppeteer
+    const browser = await puppeteer.launch({
+      headless: true,
+      executablePath: process.env.CHROME_BIN || undefined,
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    });
+
+    const page = await browser.newPage();
+    await page.setContent(htmlContent, { waitUntil: "networkidle0" });
+
+    const pdfBuffer = await page.pdf({
+      format: "A4",
+      margin: { top: "40px", bottom: "60px", left: "40px", right: "40px" },
+    });
+
+    await browser.close();
+    return Buffer.from(pdfBuffer);
+  } catch (err) {
+    console.error("PDF generation failed:", err);
+    throw err;
+  }
+};

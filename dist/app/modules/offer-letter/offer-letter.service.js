@@ -18,14 +18,15 @@ const p_limit_1 = __importDefault(require("p-limit"));
 const QueryBuilder_1 = __importDefault(require("../../builder/QueryBuilder"));
 const emailHelper_1 = require("../../utils/emailHelper");
 const generateOrderInvoicePDF_1 = require("../../utils/generateOrderInvoicePDF");
-const offer_letter_interface_1 = require("./offer-letter.interface");
 const offer_letter_model_1 = __importDefault(require("./offer-letter.model"));
 const appError_1 = __importDefault(require("../../errors/appError"));
+const organization_model_1 = __importDefault(require("../organization/organization.model"));
+const release_letter_interface_1 = require("../release-letter/release-letter.interface");
 const limit = (0, p_limit_1.default)(10); // Max 10 concurrent emails
-function processOneOfferLetter(offerLetterData, authUser) {
+function processOneOfferLetter(offerLetterData, authUser, organization) {
     return __awaiter(this, void 0, void 0, function* () {
         const updatedData = Object.assign({}, offerLetterData);
-        let resultStatus = offer_letter_interface_1.offerLetterStatus.FAILED;
+        let resultStatus = release_letter_interface_1.IEmailStatus.FAILED;
         try {
             const emailContent = yield emailHelper_1.EmailHelper.createEmailContent(Object.assign({ userName: offerLetterData.employeeEmail || "" }, updatedData), "offerLetter");
             const pdfBuffer = yield (0, generateOrderInvoicePDF_1.generateOfferLetterPDF)(offerLetterData);
@@ -38,14 +39,14 @@ function processOneOfferLetter(offerLetterData, authUser) {
             //@ts-ignore
             offerLetterData.employeeEmail, emailContent, "Offer letter confirmed!", attachment);
             resultStatus =
-                emailResult.status === offer_letter_interface_1.offerLetterStatus.SENT
-                    ? offer_letter_interface_1.offerLetterStatus.SENT
-                    : offer_letter_interface_1.offerLetterStatus.FAILED;
+                emailResult.status === release_letter_interface_1.IEmailStatus.SENT
+                    ? release_letter_interface_1.IEmailStatus.SENT
+                    : release_letter_interface_1.IEmailStatus.FAILED;
             updatedData.status = resultStatus;
         }
         catch (error) {
             console.error(`Failed for ${offerLetterData.employeeEmail}:`, error);
-            updatedData.status = offer_letter_interface_1.offerLetterStatus.FAILED;
+            updatedData.status = release_letter_interface_1.IEmailStatus.FAILED;
         }
         const newOfferLetter = new offer_letter_model_1.default(Object.assign(Object.assign({}, updatedData), { generateByUser: authUser.userId }));
         yield newOfferLetter.save();
@@ -115,7 +116,7 @@ exports.offerLetterService = {
     createOfferLetter(offerLetterData, authUser) {
         return __awaiter(this, void 0, void 0, function* () {
             const updatedData = Object.assign({}, offerLetterData);
-            if ((offerLetterData.status = offer_letter_interface_1.offerLetterStatus.SENT)) {
+            if ((offerLetterData.status = release_letter_interface_1.IEmailStatus.SENT)) {
                 const emailContent = yield emailHelper_1.EmailHelper.createEmailContent(Object.assign({ userName: offerLetterData.employeeEmail || "" }, updatedData), "offerLetter");
                 const pdfBuffer = yield (0, generateOrderInvoicePDF_1.generateOfferLetterPDF)(offerLetterData);
                 const attachment = {
@@ -126,11 +127,11 @@ exports.offerLetterService = {
                 const result = yield emailHelper_1.EmailHelper.sendEmail(
                 //@ts-ignore
                 offerLetterData.employeeEmail, emailContent, "Offer letter confirmed!", attachment);
-                if (result.status === offer_letter_interface_1.offerLetterStatus.SENT) {
-                    updatedData.status = offer_letter_interface_1.offerLetterStatus.SENT;
+                if (result.status === release_letter_interface_1.IEmailStatus.SENT) {
+                    updatedData.status = release_letter_interface_1.IEmailStatus.SENT;
                 }
                 else {
-                    updatedData.status = offer_letter_interface_1.offerLetterStatus.FAILED;
+                    updatedData.status = release_letter_interface_1.IEmailStatus.FAILED;
                 }
             }
             const newOfferLetter = new offer_letter_model_1.default(Object.assign(Object.assign({}, updatedData), { generateByUser: authUser.userId }));
@@ -140,7 +141,8 @@ exports.offerLetterService = {
     },
     createBulkOfferLetters(offerLetters, authUser) {
         return __awaiter(this, void 0, void 0, function* () {
-            const results = yield Promise.all(offerLetters.map((data) => limit(() => processOneOfferLetter(data, authUser))));
+            const organization = yield organization_model_1.default.findById(authUser === null || authUser === void 0 ? void 0 : authUser.organization);
+            const results = yield Promise.all(offerLetters.map((data) => limit(() => processOneOfferLetter(data, authUser, organization))));
             return results;
         });
     },

@@ -25,10 +25,10 @@ const createShop = (shopData, logo, authUser) => __awaiter(void 0, void 0, void 
         // Check if the user already exists by email
         const existingUser = yield user_model_1.default.findById(authUser.userId).session(session);
         if (!existingUser) {
-            throw new appError_1.default(http_status_codes_1.StatusCodes.NOT_ACCEPTABLE, 'User is not exists!');
+            throw new appError_1.default(http_status_codes_1.StatusCodes.NOT_ACCEPTABLE, "User is not exists!");
         }
         if (!existingUser.isActive) {
-            throw new appError_1.default(http_status_codes_1.StatusCodes.NOT_ACCEPTABLE, 'User is not active!');
+            throw new appError_1.default(http_status_codes_1.StatusCodes.NOT_ACCEPTABLE, "User is not active!");
         }
         if (logo) {
             shopData.logo = logo.path;
@@ -49,13 +49,13 @@ const createShop = (shopData, logo, authUser) => __awaiter(void 0, void 0, void 
 });
 const getMyShop = (authUser) => __awaiter(void 0, void 0, void 0, function* () {
     const existingUser = yield user_model_1.default.checkUserExist(authUser.userId);
-    if (!existingUser.hasShop) {
-        throw new appError_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, "You have no shop!");
-    }
-    const shop = yield shop_model_1.default.findOne({ user: existingUser._id }).populate('user');
+    // if (!existingUser.hasShop) {
+    //   throw new AppError(StatusCodes.NOT_FOUND, "You have no shop!")
+    // }
+    const shop = yield shop_model_1.default.findOne({ user: existingUser._id }).populate("user");
     return shop;
 });
 exports.ShopService = {
     createShop,
-    getMyShop
+    getMyShop,
 };

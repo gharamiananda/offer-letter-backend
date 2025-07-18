@@ -20,17 +20,17 @@ const shop_model_1 = __importDefault(require("../modules/shop/shop.model"));
 const hasActiveShop = (userId) => __awaiter(void 0, void 0, void 0, function* () {
     const isUserExists = yield user_model_1.default.checkUserExist(userId);
     if (!isUserExists) {
-        throw new appError_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, 'User not found');
+        throw new appError_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, "User not found");
     }
-    if (!isUserExists.hasShop) {
-        throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "You don't have a shop!");
-    }
-    const shop = yield shop_model_1.default.findOne({ user: isUserExists._id }).select('isActive');
+    // if (!isUserExists.hasShop) {
+    //     throw new AppError(StatusCodes.BAD_REQUEST, "You don't have a shop!");
+    // }
+    const shop = yield shop_model_1.default.findOne({ user: isUserExists._id }).select("isActive");
     if (!shop) {
-        throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, 'Shop does not exist!');
+        throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "Shop does not exist!");
     }
     if (!shop.isActive) {
-        throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, 'Your shop is not active!');
+        throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "Your shop is not active!");
     }
     return shop;
 });

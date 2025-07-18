@@ -27,7 +27,7 @@ const userSchema = new Schema<IUser, UserModel>(
       enum: [UserRole.ADMIN, UserRole.USER, UserRole.SUPERADMIN],
       default: UserRole.USER,
     },
-    hasShop: {
+    hasOrganization: {
       type: Boolean,
       default: false, // Default value is false
     },
@@ -58,6 +58,11 @@ const userSchema = new Schema<IUser, UserModel>(
     lastLogin: {
       type: Date,
       default: Date.now,
+    },
+    organization: {
+      type: String,
+      // required: true,
+      default: "",
     },
     isActive: {
       type: Boolean,

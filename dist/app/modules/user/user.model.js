@@ -72,7 +72,7 @@ const userSchema = new mongoose_1.Schema({
         enum: [user_interface_1.UserRole.ADMIN, user_interface_1.UserRole.USER, user_interface_1.UserRole.SUPERADMIN],
         default: user_interface_1.UserRole.USER,
     },
-    hasShop: {
+    hasOrganization: {
         type: Boolean,
         default: false, // Default value is false
     },
@@ -103,6 +103,11 @@ const userSchema = new mongoose_1.Schema({
     lastLogin: {
         type: Date,
         default: Date.now,
+    },
+    organization: {
+        type: String,
+        // required: true,
+        default: "",
     },
     isActive: {
         type: Boolean,

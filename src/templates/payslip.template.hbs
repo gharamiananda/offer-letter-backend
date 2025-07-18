@@ -2,17 +2,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Payslip for May {{year}}</title>
+    <title>Payslip for {{month}} {{year}}</title>
     <style>
       body { font-family: Arial, sans-serif; margin: 40px; color: #333;
       line-height: 1.6; }
     </style>
   </head>
   <body>
-    <h2>Payslip for May {{year}}</h2>
+    <h2>Payslip for {{month}} {{year}}</h2>
     <p>Dear {{employeeName}},</p>
     <p>
-      Please find enclosed Payslip for the month of May,
+      Please find enclosed Payslip for the month of
+      {{month}},
       {{year}}. We suggest that you save it in your personal records for any
       future reference.
     </p>

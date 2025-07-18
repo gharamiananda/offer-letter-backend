@@ -7,17 +7,21 @@ import {
   generateOfferLetterPDF,
 } from "../../utils/generateOrderInvoicePDF";
 import { IJwtPayload } from "../auth/auth.interface";
-import { IOfferLetter, offerLetterStatus } from "./offer-letter.interface";
+import { IOfferLetter } from "./offer-letter.interface";
 import OfferLetter from "./offer-letter.model";
 import AppError from "../../errors/appError";
+import Organization from "../organization/organization.model";
+import { IOrganization } from "../organization/organization.interface";
+import { IEmailStatus } from "../release-letter/release-letter.interface";
 
 const limit = pLimit(10); // Max 10 concurrent emails
 async function processOneOfferLetter(
   offerLetterData: IOfferLetter,
-  authUser: IJwtPayload
+  authUser: IJwtPayload,
+  organization: IOrganization
 ) {
   const updatedData: IOfferLetter = { ...offerLetterData };
-  let resultStatus = offerLetterStatus.FAILED;
+  let resultStatus = IEmailStatus.FAILED;
 
   try {
     const emailContent = await EmailHelper.createEmailContent(
@@ -43,14 +47,14 @@ async function processOneOfferLetter(
     );
 
     resultStatus =
-      emailResult.status === offerLetterStatus.SENT
-        ? offerLetterStatus.SENT
-        : offerLetterStatus.FAILED;
+      emailResult.status === IEmailStatus.SENT
+        ? IEmailStatus.SENT
+        : IEmailStatus.FAILED;
 
     updatedData.status = resultStatus;
   } catch (error) {
     console.error(`Failed for ${offerLetterData.employeeEmail}:`, error);
-    updatedData.status = offerLetterStatus.FAILED;
+    updatedData.status = IEmailStatus.FAILED;
   }
 
   const newOfferLetter = new OfferLetter({
@@ -139,7 +143,7 @@ export const offerLetterService = {
       ...offerLetterData,
     };
 
-    if ((offerLetterData.status = offerLetterStatus.SENT)) {
+    if ((offerLetterData.status = IEmailStatus.SENT)) {
       const emailContent = await EmailHelper.createEmailContent(
         //@ts-ignore
         { userName: offerLetterData.employeeEmail || "", ...updatedData },
@@ -162,10 +166,10 @@ export const offerLetterService = {
         attachment
       );
 
-      if (result.status === offerLetterStatus.SENT) {
-        updatedData.status = offerLetterStatus.SENT;
+      if (result.status === IEmailStatus.SENT) {
+        updatedData.status = IEmailStatus.SENT;
       } else {
-        updatedData.status = offerLetterStatus.FAILED;
+        updatedData.status = IEmailStatus.FAILED;
       }
     }
     const newOfferLetter = new OfferLetter({
@@ -180,9 +184,12 @@ export const offerLetterService = {
     offerLetters: IOfferLetter[],
     authUser: IJwtPayload
   ) {
+    const organization = await Organization.findById(authUser?.organization);
     const results = await Promise.all(
       offerLetters.map((data) =>
-        limit(() => processOneOfferLetter(data, authUser))
+        limit(() =>
+          processOneOfferLetter(data, authUser, organization as IOrganization)
+        )
       )
     );
 

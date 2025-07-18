@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = require("mongoose");
-const offer_letter_interface_1 = require("./offer-letter.interface");
+const release_letter_interface_1 = require("../release-letter/release-letter.interface");
 const offerLetterSchema = new mongoose_1.Schema({
     employeeName: {
         type: String,
@@ -45,8 +45,8 @@ const offerLetterSchema = new mongoose_1.Schema({
     },
     status: {
         type: String,
-        enum: offer_letter_interface_1.offerLetterStatus,
-        default: offer_letter_interface_1.offerLetterStatus.DRAFT,
+        enum: release_letter_interface_1.IEmailStatus,
+        default: release_letter_interface_1.IEmailStatus.DRAFT,
     },
     companyAddress: {
         type: String,
@@ -62,7 +62,7 @@ const offerLetterSchema = new mongoose_1.Schema({
     },
     emailMessage: {
         type: String,
-        required: true,
+        default: "",
     },
     companyContactName: {
         type: String,

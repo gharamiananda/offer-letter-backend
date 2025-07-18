@@ -1,5 +1,6 @@
 import { Schema, model, Document } from "mongoose";
-import { IOfferLetter, offerLetterStatus } from "./offer-letter.interface";
+import { IOfferLetter } from "./offer-letter.interface";
+import { IEmailStatus } from "../release-letter/release-letter.interface";
 
 const offerLetterSchema = new Schema<IOfferLetter>(
   {
@@ -46,8 +47,8 @@ const offerLetterSchema = new Schema<IOfferLetter>(
     status: {
       type: String,
 
-      enum: offerLetterStatus,
-      default: offerLetterStatus.DRAFT,
+      enum: IEmailStatus,
+      default: IEmailStatus.DRAFT,
     },
     companyAddress: {
       type: String,
@@ -63,7 +64,7 @@ const offerLetterSchema = new Schema<IOfferLetter>(
     },
     emailMessage: {
       type: String,
-      required: true,
+      default: "",
     },
     companyContactName: {
       type: String,

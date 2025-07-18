@@ -1,10 +1,6 @@
 import { Schema } from "mongoose";
+import { IEmailStatus } from "../release-letter/release-letter.interface";
 
-export enum offerLetterStatus {
-  DRAFT = "draft",
-  SENT = "send",
-  FAILED = "failed",
-}
 export interface IOfferLetter extends Document {
   employeeName: string;
   employeeEmail: string;
@@ -22,7 +18,7 @@ export interface IOfferLetter extends Document {
   companyPersonalEmail: string;
   emailSubject: string;
   emailMessage: string;
-  status: offerLetterStatus;
+  status: IEmailStatus;
   generateByUser: Schema.Types.ObjectId;
   acknowledge: boolean;
   dateOfAcknowledge: Date;

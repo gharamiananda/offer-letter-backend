@@ -4,7 +4,7 @@ import { IJwtPayload } from "../auth/auth.interface";
 import sendResponse from "../../utils/sendResponse";
 import { StatusCodes } from "http-status-codes";
 import catchAsync from "../../utils/catchAsync";
-import { IOfferLetter, offerLetterStatus } from "./offer-letter.interface";
+import { IOfferLetter } from "./offer-letter.interface";
 import * as XLSX from "xlsx";
 import AppError from "../../errors/appError";
 
@@ -78,10 +78,17 @@ export const offerLetterController = {
       );
     }
 
-    // Read the file from buffer
-    const workbook = XLSX.read(file.buffer, { type: "buffer" });
+    const workbook = XLSX.read(file.buffer, {
+      type: "buffer",
+      cellDates: true, // Important: forces cells to be parsed as Date objects
+    });
+
     const sheetName = workbook.SheetNames[0];
-    const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+    const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {
+      defval: "", // Keeps empty cells instead of skipping
+      raw: false, // Converts dates and numbers properly
+    });
 
     const results = await offerLetterService.createBulkOfferLetters(
       rows as IOfferLetter[],
@@ -95,34 +102,4 @@ export const offerLetterController = {
       data: results,
     });
   },
-  // async createBulkOfferLetter(req: Request, res: Response) {
-  //   const offerLetters: IOfferLetter[] = req.body;
-  //   const file = req.file;
-  //   if (!file) {
-  //     return res.status(400).json({ message: "Empty or invalid Excel file" });
-  //   }
-
-  //   const workbook = XLSX.readFile(file.path);
-  //   const sheetName = workbook.SheetNames[0];
-  //   const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
-
-  //   if (!Array.isArray(rows) || rows.length === 0) {
-  //     return res.status(400).json({ message: "Empty or invalid Excel file" });
-  //   }
-
-  //   console.log(rows, "rows");
-  //   return;
-  //   const results = await offerLetterService.createBulkOfferLetters(
-  //     offerLetters,
-  //     req.user as IJwtPayload
-  //   );
-
-  //   res.status(201).json({
-  //     success: true,
-  //     message: "Bulk offer letters processed",
-  //     total: offerLetters.length,
-  //     sent: results.filter((r) => r.status === offerLetterStatus.SENT).length,
-  //     failed: results.filter((r) => r.status === offerLetterStatus.FAILED),
-  //   });
-  // },
 };

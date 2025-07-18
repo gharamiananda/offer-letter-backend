@@ -50,18 +50,22 @@ export const payslipController = {
         "Empty or invalid Excel file"
       );
     }
+    const workbook = XLSX.read(file.buffer, {
+      type: "buffer",
+      cellDates: true,
+    });
 
-    // Read the file from buffer
-    const workbook = XLSX.read(file.buffer, { type: "buffer" });
     const sheetName = workbook.SheetNames[0];
-    const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+    const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {
+      defval: "",
+      raw: false,
+    });
 
     const results = await payslipService.createBulkOfferLetters(
       rows as IPaySlip[],
       req.user as IJwtPayload
     );
-
-    console.log(rows, rows.length, "rows");
 
     sendResponse(res, {
       statusCode: StatusCodes.OK,

@@ -20,7 +20,7 @@ const appError_1 = __importDefault(require("../../errors/appError"));
 const emailHelper_1 = require("../../utils/emailHelper");
 const generateOrderInvoicePDF_1 = require("../../utils/generateOrderInvoicePDF");
 const payslip_model_1 = __importDefault(require("./payslip.model"));
-const payslip_interface_1 = require("./payslip.interface");
+const release_letter_interface_1 = require("../release-letter/release-letter.interface");
 const limit = (0, p_limit_1.default)(10); // Max 10 concurrent emails
 function processOneOfferLetter(offerLetterData, authUser) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -35,9 +35,9 @@ function processOneOfferLetter(offerLetterData, authUser) {
             const emailResult = yield emailHelper_1.EmailHelper.sendEmail(
             //@ts-ignore
             offerLetterData.employeeEmail, emailContent, "Payslip generated!", attachment);
-            const resultStatus = emailResult.status === payslip_interface_1.offerLetterStatus.SENT
-                ? payslip_interface_1.offerLetterStatus.SENT
-                : payslip_interface_1.offerLetterStatus.FAILED;
+            const resultStatus = emailResult.status === release_letter_interface_1.IEmailStatus.SENT
+                ? release_letter_interface_1.IEmailStatus.SENT
+                : release_letter_interface_1.IEmailStatus.FAILED;
             const newOfferLetter = new payslip_model_1.default(Object.assign(Object.assign({}, offerLetterData), { generateByUser: authUser.userId, status: resultStatus }));
             const result = yield newOfferLetter.save();
             return result;

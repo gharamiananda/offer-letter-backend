@@ -41,7 +41,8 @@ const loginUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
             userId: user._id,
             name: user.name,
             email: user.email,
-            hasShop: user.hasShop,
+            hasOrganization: user.hasOrganization,
+            organization: user.organization,
             isActive: user.isActive,
             role: user.role,
         };
@@ -82,7 +83,8 @@ const refreshToken = (token) => __awaiter(void 0, void 0, void 0, function* () {
         userId: isUserExist._id,
         name: isUserExist.name,
         email: isUserExist.email,
-        hasShop: isUserExist.hasShop,
+        hasOrganization: isUserExist.hasOrganization,
+        organization: isUserExist.organization,
         isActive: isUserExist.isActive,
         role: isUserExist.role,
     };
@@ -126,7 +128,7 @@ const forgotPassword = (_a) => __awaiter(void 0, [_a], void 0, function* ({ emai
     yield user_model_1.default.updateOne({ email }, { otpToken });
     try {
         const emailContent = yield emailHelper_1.EmailHelper.createEmailContent({ otpCode: otp, userName: user.name }, "forgotPassword");
-        yield emailHelper_1.EmailHelper.sendEmail(email, emailContent, "Reset Password OTP");
+        yield emailHelper_1.EmailHelper.sendEmailFromAdmin(email, emailContent, "Reset Password OTP");
     }
     catch (error) {
         yield user_model_1.default.updateOne({ email }, { $unset: { otpToken: 1 } });
