@@ -23,24 +23,27 @@ const shop_model_1 = __importDefault(require("../shop/shop.model"));
 const createCoupon = (couponData, authUser) => __awaiter(void 0, void 0, void 0, function* () {
     const user = yield user_model_1.default.findById(authUser.userId);
     if (!user) {
-        throw new appError_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, 'User not found');
+        throw new appError_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, "User not found");
     }
-    if (!user.hasShop) {
-        throw new appError_1.default(http_status_codes_1.StatusCodes.FORBIDDEN, 'Only shop owners can create coupons');
-    }
+    // if (!user.hasShop) {
+    //    throw new AppError(
+    //       StatusCodes.FORBIDDEN,
+    //       'Only shop owners can create coupons'
+    //    );
+    // }
     const shop = yield shop_model_1.default.findOne({
         user: user._id,
-        isActive: true
-    }).select('_id');
+        isActive: true,
+    }).select("_id");
     if (!shop) {
-        throw new appError_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, 'Shop not found');
+        throw new appError_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, "Shop not found");
     }
     const coupon = new coupon_model_1.Coupon(Object.assign(Object.assign({}, couponData), { shop: shop._id }));
     return yield coupon.save();
 });
 const getAllCoupon = (query) => __awaiter(void 0, void 0, void 0, function* () {
     const brandQuery = new QueryBuilder_1.default(coupon_model_1.Coupon.find(), query)
-        .search(['code'])
+        .search(["code"])
         .filter()
         .sort()
         .paginate()
@@ -57,10 +60,10 @@ const updateCoupon = (payload, couponCode) => __awaiter(void 0, void 0, void 0, 
     const currentDate = new Date();
     const coupon = yield coupon_model_1.Coupon.findOne({ code: couponCode });
     if (!coupon) {
-        throw new appError_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, 'Coupon not found.');
+        throw new appError_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, "Coupon not found.");
     }
     if (coupon.endDate < currentDate) {
-        throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, 'Coupon has expired.');
+        throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "Coupon has expired.");
     }
     const updatedCoupon = yield coupon_model_1.Coupon.findByIdAndUpdate(coupon._id, { $set: payload }, { new: true, runValidators: true });
     return updatedCoupon;
@@ -70,22 +73,22 @@ const getCouponByCode = (orderAmount, couponCode, shopId) => __awaiter(void 0, v
     const currentDate = new Date();
     const coupon = yield coupon_model_1.Coupon.findOne({ code: couponCode });
     if (!coupon) {
-        throw new appError_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, 'Coupon not found.');
+        throw new appError_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, "Coupon not found.");
     }
     if (!coupon.isActive) {
-        throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, 'Coupon is inactive.');
+        throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "Coupon is inactive.");
     }
     if (coupon.endDate < currentDate) {
-        throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, 'Coupon has expired.');
+        throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "Coupon has expired.");
     }
     if (coupon.startDate > currentDate) {
-        throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, 'Coupon has not started.');
+        throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "Coupon has not started.");
     }
     if (orderAmount < coupon.minOrderAmount) {
-        throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, 'Below Minimum order amount');
+        throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "Below Minimum order amount");
     }
     if (!(shopId === ((_a = coupon.shop) === null || _a === void 0 ? void 0 : _a.toString()))) {
-        throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, 'Coupon is not applicable on your selected products!');
+        throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "Coupon is not applicable on your selected products!");
     }
     const discountAmount = (0, coupon_utils_1.calculateDiscount)(coupon, orderAmount);
     const discountedPrice = orderAmount - discountAmount;
@@ -94,10 +97,10 @@ const getCouponByCode = (orderAmount, couponCode, shopId) => __awaiter(void 0, v
 const deleteCoupon = (couponId) => __awaiter(void 0, void 0, void 0, function* () {
     const coupon = yield coupon_model_1.Coupon.findById(couponId);
     if (!coupon) {
-        throw new appError_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, 'Coupon not found.');
+        throw new appError_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, "Coupon not found.");
     }
     yield coupon_model_1.Coupon.updateOne({ _id: coupon._id }, { isDeleted: true });
-    return { message: 'Coupon deleted successfully.' };
+    return { message: "Coupon deleted successfully." };
 });
 exports.CouponService = {
     createCoupon,

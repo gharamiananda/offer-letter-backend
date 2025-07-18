@@ -113,10 +113,15 @@ exports.offerLetterController = {
             if (!file) {
                 throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "Empty or invalid Excel file");
             }
-            // Read the file from buffer
-            const workbook = XLSX.read(file.buffer, { type: "buffer" });
+            const workbook = XLSX.read(file.buffer, {
+                type: "buffer",
+                cellDates: true, // Important: forces cells to be parsed as Date objects
+            });
             const sheetName = workbook.SheetNames[0];
-            const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+            const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {
+                defval: "", // Keeps empty cells instead of skipping
+                raw: false, // Converts dates and numbers properly
+            });
             const results = yield offer_letter_service_1.offerLetterService.createBulkOfferLetters(rows, req.user);
             (0, sendResponse_1.default)(res, {
                 statusCode: http_status_codes_1.StatusCodes.OK,
@@ -126,30 +131,4 @@ exports.offerLetterController = {
             });
         });
     },
-    // async createBulkOfferLetter(req: Request, res: Response) {
-    //   const offerLetters: IOfferLetter[] = req.body;
-    //   const file = req.file;
-    //   if (!file) {
-    //     return res.status(400).json({ message: "Empty or invalid Excel file" });
-    //   }
-    //   const workbook = XLSX.readFile(file.path);
-    //   const sheetName = workbook.SheetNames[0];
-    //   const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
-    //   if (!Array.isArray(rows) || rows.length === 0) {
-    //     return res.status(400).json({ message: "Empty or invalid Excel file" });
-    //   }
-    //   console.log(rows, "rows");
-    //   return;
-    //   const results = await offerLetterService.createBulkOfferLetters(
-    //     offerLetters,
-    //     req.user as IJwtPayload
-    //   );
-    //   res.status(201).json({
-    //     success: true,
-    //     message: "Bulk offer letters processed",
-    //     total: offerLetters.length,
-    //     sent: results.filter((r) => r.status === offerLetterStatus.SENT).length,
-    //     failed: results.filter((r) => r.status === offerLetterStatus.FAILED),
-    //   });
-    // },
 };

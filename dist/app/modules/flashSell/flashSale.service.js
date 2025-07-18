@@ -31,16 +31,15 @@ const user_model_1 = __importDefault(require("../user/user.model"));
 const shop_model_1 = __importDefault(require("../shop/shop.model"));
 const QueryBuilder_1 = __importDefault(require("../../builder/QueryBuilder"));
 const createFlashSale = (flashSellData, authUser) => __awaiter(void 0, void 0, void 0, function* () {
-    const userHasShop = yield user_model_1.default.findById(authUser.userId).select('isActive hasShop');
+    const userHasShop = yield user_model_1.default.findById(authUser.userId).select("isActive hasShop");
     if (!userHasShop)
         throw new appError_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, "User not found!");
     if (!userHasShop.isActive)
         throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "User account is not active!");
-    if (!userHasShop.hasShop)
-        throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "User does not have any shop!");
+    // if (!userHasShop.hasShop) throw new AppError(StatusCodes.BAD_REQUEST, "User does not have any shop!");
     const shopIsActive = yield shop_model_1.default.findOne({
         user: userHasShop._id,
-        isActive: true
+        isActive: true,
     }).select("isActive");
     if (!shopIsActive)
         throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "Shop is not active!");
@@ -65,11 +64,10 @@ const createFlashSale = (flashSellData, authUser) => __awaiter(void 0, void 0, v
 const getActiveFlashSalesService = (query) => __awaiter(void 0, void 0, void 0, function* () {
     const { minPrice, maxPrice } = query, pQuery = __rest(query, ["minPrice", "maxPrice"]);
     const flashSaleQuery = new QueryBuilder_1.default(flashSale_model_1.FlashSale.find()
-        .populate('product')
-        .populate('product.category', 'name')
-        .populate('product.shop', 'shopName')
-        .populate('product.brand', 'name'), query)
-        .paginate();
+        .populate("product")
+        .populate("product.category", "name")
+        .populate("product.shop", "shopName")
+        .populate("product.brand", "name"), query).paginate();
     const flashSales = yield flashSaleQuery.modelQuery.lean();
     const flashSaleMap = flashSales.reduce((acc, flashSale) => {
         //@ts-ignore
@@ -97,5 +95,5 @@ const getActiveFlashSalesService = (query) => __awaiter(void 0, void 0, void 0, 
 });
 exports.FlashSaleService = {
     createFlashSale,
-    getActiveFlashSalesService
+    getActiveFlashSalesService,
 };

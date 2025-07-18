@@ -3,15 +3,11 @@ import pLimit from "p-limit";
 import QueryBuilder from "../../builder/QueryBuilder";
 import AppError from "../../errors/appError";
 import { EmailHelper } from "../../utils/emailHelper";
-import {
-  generateOfferLetterHTML,
-  generateOfferLetterPDF,
-  generateOrderInvoicePDF,
-  generatePayslipPDF,
-} from "../../utils/generateOrderInvoicePDF";
+import { generatePayslipPDF } from "../../utils/generateOrderInvoicePDF";
 import { IJwtPayload } from "../auth/auth.interface";
+import { IPaySlip } from "./payslip.interface";
 import PaySlip from "./payslip.model";
-import { IPaySlip, offerLetterStatus } from "./payslip.interface";
+import { IEmailStatus } from "../release-letter/release-letter.interface";
 
 const limit = pLimit(10); // Max 10 concurrent emails
 async function processOneOfferLetter(
@@ -42,9 +38,9 @@ async function processOneOfferLetter(
     );
 
     const resultStatus =
-      emailResult.status === offerLetterStatus.SENT
-        ? offerLetterStatus.SENT
-        : offerLetterStatus.FAILED;
+      emailResult.status === IEmailStatus.SENT
+        ? IEmailStatus.SENT
+        : IEmailStatus.FAILED;
     const newOfferLetter = new PaySlip({
       ...offerLetterData,
       generateByUser: authUser.userId,

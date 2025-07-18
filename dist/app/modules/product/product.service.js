@@ -39,15 +39,15 @@ const createProduct = (productData, productImages, authUser) => __awaiter(void 0
     const shop = yield (0, hasActiveShop_1.hasActiveShop)(authUser.userId);
     const { images } = productImages;
     if (!images || images.length === 0) {
-        throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, 'Product images are required.');
+        throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "Product images are required.");
     }
     productData.imageUrls = images.map((image) => image.path);
     const isCategoryExists = yield category_model_1.Category.findById(productData.category);
     if (!isCategoryExists) {
-        throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, 'Category does not exist!');
+        throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "Category does not exist!");
     }
     if (!isCategoryExists.isActive) {
-        throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, 'Category is not active!');
+        throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "Category is not active!");
     }
     const newProduct = new product_model_1.Product(Object.assign(Object.assign({}, productData), { shop: shop._id }));
     const result = yield newProduct.save();
@@ -102,8 +102,8 @@ const getAllProduct = (query) => __awaiter(void 0, void 0, void 0, function* () 
     const filter = {};
     // Filter by categories
     if (categories) {
-        const categoryArray = typeof categories === 'string'
-            ? categories.split(',')
+        const categoryArray = typeof categories === "string"
+            ? categories.split(",")
             : Array.isArray(categories)
                 ? categories
                 : [categories];
@@ -111,8 +111,8 @@ const getAllProduct = (query) => __awaiter(void 0, void 0, void 0, function* () 
     }
     // Filter by brands
     if (brands) {
-        const brandArray = typeof brands === 'string'
-            ? brands.split(',')
+        const brandArray = typeof brands === "string"
+            ? brands.split(",")
             : Array.isArray(brands)
                 ? brands
                 : [brands];
@@ -120,20 +120,22 @@ const getAllProduct = (query) => __awaiter(void 0, void 0, void 0, function* () 
     }
     // Filter by in stock/out of stock
     if (inStock !== undefined) {
-        filter.stock = inStock === 'true' ? { $gt: 0 } : 0;
+        filter.stock = inStock === "true" ? { $gt: 0 } : 0;
     }
     // Filter by ratings
     if (ratings) {
-        const ratingArray = typeof ratings === 'string'
-            ? ratings.split(',')
-            : Array.isArray(ratings) ? ratings : [ratings];
+        const ratingArray = typeof ratings === "string"
+            ? ratings.split(",")
+            : Array.isArray(ratings)
+                ? ratings
+                : [ratings];
         filter.averageRating = { $in: ratingArray.map(Number) };
     }
     const productQuery = new QueryBuilder_1.default(product_model_1.Product.find(filter)
-        .populate('category', 'name')
-        .populate('shop', 'shopName')
-        .populate('brand', 'name'), pQuery)
-        .search(['name', 'description'])
+        .populate("category", "name")
+        .populate("shop", "shopName")
+        .populate("brand", "name"), pQuery)
+        .search(["name", "description"])
         .filter()
         .sort()
         .paginate()
@@ -146,7 +148,7 @@ const getAllProduct = (query) => __awaiter(void 0, void 0, void 0, function* () 
     const flashSales = yield flashSale_model_1.FlashSale.find({
         product: { $in: productIds },
         discountPercentage: { $gt: 0 },
-    }).select('product discountPercentage');
+    }).select("product discountPercentage");
     const flashSaleMap = flashSales.reduce((acc, { product, discountPercentage }) => {
         //@ts-ignore
         acc[product.toString()] = discountPercentage;
@@ -179,12 +181,12 @@ const getTrendingProducts = (limit) => __awaiter(void 0, void 0, void 0, functio
             },
         },
         {
-            $unwind: '$products',
+            $unwind: "$products",
         },
         {
             $group: {
-                _id: '$products.product',
-                orderCount: { $sum: '$products.quantity' },
+                _id: "$products.product",
+                orderCount: { $sum: "$products.quantity" },
             },
         },
         {
@@ -195,37 +197,36 @@ const getTrendingProducts = (limit) => __awaiter(void 0, void 0, void 0, functio
         },
         {
             $lookup: {
-                from: 'products',
-                localField: '_id',
-                foreignField: '_id',
-                as: 'productDetails',
+                from: "products",
+                localField: "_id",
+                foreignField: "_id",
+                as: "productDetails",
             },
         },
         {
-            $unwind: '$productDetails',
+            $unwind: "$productDetails",
         },
         {
             $project: {
                 _id: 0,
-                productId: '$_id',
+                productId: "$_id",
                 orderCount: 1,
-                name: '$productDetails.name',
-                price: '$productDetails.price',
-                offer: '$productDetails.offer',
-                imageUrls: '$productDetails.imageUrls',
+                name: "$productDetails.name",
+                price: "$productDetails.price",
+                offer: "$productDetails.offer",
+                imageUrls: "$productDetails.imageUrls",
             },
         },
     ]);
     return trendingProducts;
 });
 const getSingleProduct = (productId) => __awaiter(void 0, void 0, void 0, function* () {
-    const product = yield product_model_1.Product.findById(productId)
-        .populate("shop brand category");
+    const product = yield product_model_1.Product.findById(productId).populate("shop brand category");
     if (!product) {
-        throw new appError_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, 'Product not found');
+        throw new appError_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, "Product not found");
     }
     if (!product.isActive) {
-        throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, 'Product is not active');
+        throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "Product is not active");
     }
     const offerPrice = yield product.calculateOfferPrice();
     const reviews = yield review_model_1.Review.find({ product: product._id });
@@ -234,25 +235,24 @@ const getSingleProduct = (productId) => __awaiter(void 0, void 0, void 0, functi
         reviews });
 });
 const getMyShopProducts = (query, authUser) => __awaiter(void 0, void 0, void 0, function* () {
-    const userHasShop = yield user_model_1.default.findById(authUser.userId).select('isActive hasShop');
+    const userHasShop = yield user_model_1.default.findById(authUser.userId).select("isActive hasShop");
     if (!userHasShop)
         throw new appError_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, "User not found!");
     if (!userHasShop.isActive)
         throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "User account is not active!");
-    if (!userHasShop.hasShop)
-        throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "User does not have any shop!");
+    // if (!userHasShop.hasShop) throw new AppError(StatusCodes.BAD_REQUEST, "User does not have any shop!");
     const shopIsActive = yield shop_model_1.default.findOne({
         user: userHasShop._id,
-        isActive: true
+        isActive: true,
     }).select("isActive");
     if (!shopIsActive)
         throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "Shop is not active!");
     const { minPrice, maxPrice } = query, pQuery = __rest(query, ["minPrice", "maxPrice"]);
     const productQuery = new QueryBuilder_1.default(product_model_1.Product.find({ shop: shopIsActive._id })
-        .populate('category', 'name')
-        .populate('shop', 'shopName')
-        .populate('brand', 'name'), pQuery)
-        .search(['name', 'description'])
+        .populate("category", "name")
+        .populate("shop", "shopName")
+        .populate("brand", "name"), pQuery)
+        .search(["name", "description"])
         .filter()
         .sort()
         .paginate()
@@ -279,16 +279,16 @@ const updateProduct = (productId, payload, productImages, authUser) => __awaiter
         _id: productId,
     });
     if (!(user === null || user === void 0 ? void 0 : user.isActive)) {
-        throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, 'User is not active');
+        throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "User is not active");
     }
     if (!shop) {
         throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "You don't have a shop");
     }
     if (!shop.isActive) {
-        throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, 'Your shop is inactive');
+        throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "Your shop is inactive");
     }
     if (!product) {
-        throw new appError_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, 'Product Not Found');
+        throw new appError_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, "Product Not Found");
     }
     if (images && images.length > 0) {
         payload.imageUrls = images.map((image) => image.path);
@@ -303,13 +303,13 @@ const deleteProduct = (productId, authUser) => __awaiter(void 0, void 0, void 0,
         _id: productId,
     });
     if (!(user === null || user === void 0 ? void 0 : user.isActive)) {
-        throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, 'User is not active');
+        throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "User is not active");
     }
     if (!shop) {
         throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "You don't have a shop");
     }
     if (!product) {
-        throw new appError_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, 'Product Not Found');
+        throw new appError_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, "Product Not Found");
     }
     return yield product_model_1.Product.findByIdAndDelete(productId);
 });
@@ -320,5 +320,5 @@ exports.ProductService = {
     getSingleProduct,
     updateProduct,
     deleteProduct,
-    getMyShopProducts
+    getMyShopProducts,
 };

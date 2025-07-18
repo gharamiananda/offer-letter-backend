@@ -91,12 +91,16 @@ exports.payslipController = {
             if (!file) {
                 throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "Empty or invalid Excel file");
             }
-            // Read the file from buffer
-            const workbook = XLSX.read(file.buffer, { type: "buffer" });
+            const workbook = XLSX.read(file.buffer, {
+                type: "buffer",
+                cellDates: true,
+            });
             const sheetName = workbook.SheetNames[0];
-            const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+            const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {
+                defval: "",
+                raw: false,
+            });
             const results = yield payslip_service_1.payslipService.createBulkOfferLetters(rows, req.user);
-            console.log(rows, rows.length, "rows");
             (0, sendResponse_1.default)(res, {
                 statusCode: http_status_codes_1.StatusCodes.OK,
                 success: true,

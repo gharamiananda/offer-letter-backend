@@ -47,13 +47,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EmailHelper = void 0;
 const fs = __importStar(require("fs"));
+const nodemailer_1 = __importDefault(require("nodemailer"));
 const path = __importStar(require("path"));
+const config_1 = __importDefault(require("../config"));
+const release_letter_interface_1 = require("../modules/release-letter/release-letter.interface");
 const Util = require("util");
 const ReadFile = Util.promisify(fs.readFile);
 const Handlebars = require("handlebars");
-const nodemailer_1 = __importDefault(require("nodemailer"));
-const config_1 = __importDefault(require("../config"));
-const offer_letter_interface_1 = require("../modules/offer-letter/offer-letter.interface");
 const sendEmail = (email, html, subject, attachment) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const transporter = nodemailer_1.default.createTransport({
@@ -86,14 +86,60 @@ const sendEmail = (email, html, subject, attachment) => __awaiter(void 0, void 0
         const info = yield transporter.sendMail(mailOptions);
         console.log("Email sent:", info.messageId);
         return {
-            status: offer_letter_interface_1.offerLetterStatus.SENT,
+            status: release_letter_interface_1.IEmailStatus.SENT,
             messageId: info.messageId,
         };
     }
     catch (error) {
         console.error("Error sending email:", error.message || error);
         return {
-            status: offer_letter_interface_1.offerLetterStatus.FAILED,
+            status: release_letter_interface_1.IEmailStatus.FAILED,
+            error: error.message || "Unknown error",
+        };
+    }
+});
+const sendEmailFromAdmin = (email, html, subject, attachment) => __awaiter(void 0, void 0, void 0, function* () {
+    // SENDER_EMAIL="anandagharami.am@gmail.com"
+    // SENDER_APP_PASS="gcjm dbqa idpd jcfh"
+    try {
+        const transporter = nodemailer_1.default.createTransport({
+            host: "smtp.gmail.com",
+            port: 587,
+            secure: false,
+            auth: {
+                user: "anandagharami.am@gmail.com",
+                pass: "gcjm dbqa idpd jcfh",
+            },
+            tls: {
+                rejectUnauthorized: false,
+            },
+        });
+        const mailOptions = {
+            from: `Woodrock <${"anandagharami.am@gmail.com"}>`, // corrected formatting
+            to: email,
+            subject,
+            html,
+        };
+        if (attachment) {
+            mailOptions.attachments = [
+                {
+                    filename: attachment.filename,
+                    content: attachment.content,
+                    encoding: attachment.encoding,
+                },
+            ];
+        }
+        const info = yield transporter.sendMail(mailOptions);
+        console.log("Email sent:", info.messageId, email);
+        return {
+            status: release_letter_interface_1.IEmailStatus.SENT,
+            messageId: info.messageId,
+        };
+    }
+    catch (error) {
+        console.error("Error sending email:", error.message || error);
+        return {
+            status: release_letter_interface_1.IEmailStatus.FAILED,
             error: error.message || "Unknown error",
         };
     }
@@ -112,4 +158,5 @@ const createEmailContent = (data, templateType) => __awaiter(void 0, void 0, voi
 exports.EmailHelper = {
     sendEmail,
     createEmailContent,
+    sendEmailFromAdmin,
 };

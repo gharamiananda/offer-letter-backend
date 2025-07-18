@@ -149,8 +149,8 @@ const getMyShopOrders = async (
     throw new AppError(StatusCodes.NOT_FOUND, "User not found!");
   if (!userHasShop.isActive)
     throw new AppError(StatusCodes.BAD_REQUEST, "User account is not active!");
-  if (!userHasShop.hasShop)
-    throw new AppError(StatusCodes.BAD_REQUEST, "User does not have any shop!");
+  // if (!userHasShop.hasShop)
+  //   throw new AppError(StatusCodes.BAD_REQUEST, "User does not have any shop!");
 
   const shopIsActive = await Shop.findOne({
     user: userHasShop._id,
@@ -233,8 +233,8 @@ const changeOrderStatus = async (
     throw new AppError(StatusCodes.NOT_FOUND, "User not found!");
   if (!userHasShop.isActive)
     throw new AppError(StatusCodes.BAD_REQUEST, "User account is not active!");
-  if (!userHasShop.hasShop)
-    throw new AppError(StatusCodes.BAD_REQUEST, "User does not have any shop!");
+  // if (!userHasShop.hasShop)
+  //   throw new AppError(StatusCodes.BAD_REQUEST, "User does not have any shop!");
 
   const shopIsActive = await Shop.findOne({
     user: userHasShop._id,

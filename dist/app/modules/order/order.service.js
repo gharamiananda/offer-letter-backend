@@ -163,8 +163,8 @@ const getMyShopOrders = (query, authUser) => __awaiter(void 0, void 0, void 0, f
         throw new appError_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, "User not found!");
     if (!userHasShop.isActive)
         throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "User account is not active!");
-    if (!userHasShop.hasShop)
-        throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "User does not have any shop!");
+    // if (!userHasShop.hasShop)
+    //   throw new AppError(StatusCodes.BAD_REQUEST, "User does not have any shop!");
     const shopIsActive = yield shop_model_1.default.findOne({
         user: userHasShop._id,
         isActive: true,
@@ -212,8 +212,8 @@ const changeOrderStatus = (orderId, status, authUser) => __awaiter(void 0, void 
         throw new appError_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, "User not found!");
     if (!userHasShop.isActive)
         throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "User account is not active!");
-    if (!userHasShop.hasShop)
-        throw new appError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "User does not have any shop!");
+    // if (!userHasShop.hasShop)
+    //   throw new AppError(StatusCodes.BAD_REQUEST, "User does not have any shop!");
     const shopIsActive = yield shop_model_1.default.findOne({
         user: userHasShop._id,
         isActive: true,

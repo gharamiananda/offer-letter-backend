@@ -35,7 +35,8 @@ const loginUser = async (payload: IAuth) => {
       userId: user._id as string,
       name: user.name as string,
       email: user.email as string,
-      hasShop: user.hasShop,
+      hasOrganization: user.hasOrganization,
+      organization: user.organization,
       isActive: user.isActive,
       role: user.role,
     };
@@ -95,7 +96,9 @@ const refreshToken = async (token: string) => {
     userId: isUserExist._id as string,
     name: isUserExist.name as string,
     email: isUserExist.email as string,
-    hasShop: isUserExist.hasShop,
+
+    hasOrganization: isUserExist.hasOrganization,
+    organization: isUserExist.organization,
     isActive: isUserExist.isActive,
     role: isUserExist.role,
   };
@@ -170,7 +173,11 @@ const forgotPassword = async ({ email }: { email: string }) => {
       "forgotPassword"
     );
 
-    await EmailHelper.sendEmail(email, emailContent, "Reset Password OTP");
+    await EmailHelper.sendEmailFromAdmin(
+      email,
+      emailContent,
+      "Reset Password OTP"
+    );
   } catch (error) {
     await User.updateOne({ email }, { $unset: { otpToken: 1 } });
 

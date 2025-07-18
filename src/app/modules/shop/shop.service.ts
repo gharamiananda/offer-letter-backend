@@ -7,8 +7,11 @@ import AppError from "../../errors/appError";
 import { StatusCodes } from "http-status-codes";
 import Shop from "./shop.model";
 
-const createShop = async (shopData: Partial<IShop>, logo: IImageFile, authUser: IJwtPayload) => {
-
+const createShop = async (
+  shopData: Partial<IShop>,
+  logo: IImageFile,
+  authUser: IJwtPayload
+) => {
   const session = await mongoose.startSession();
   session.startTransaction();
 
@@ -17,20 +20,20 @@ const createShop = async (shopData: Partial<IShop>, logo: IImageFile, authUser: 
     const existingUser = await User.findById(authUser.userId).session(session);
 
     if (!existingUser) {
-      throw new AppError(StatusCodes.NOT_ACCEPTABLE, 'User is not exists!');
+      throw new AppError(StatusCodes.NOT_ACCEPTABLE, "User is not exists!");
     }
 
     if (!existingUser.isActive) {
-      throw new AppError(StatusCodes.NOT_ACCEPTABLE, 'User is not active!');
+      throw new AppError(StatusCodes.NOT_ACCEPTABLE, "User is not active!");
     }
 
     if (logo) {
-      shopData.logo = logo.path
+      shopData.logo = logo.path;
     }
 
     const shop = new Shop({
       ...shopData,
-      user: existingUser._id
+      user: existingUser._id,
     });
 
     const createdShop = await shop.save({ session });
@@ -55,15 +58,15 @@ const createShop = async (shopData: Partial<IShop>, logo: IImageFile, authUser: 
 
 const getMyShop = async (authUser: IJwtPayload) => {
   const existingUser = await User.checkUserExist(authUser.userId);
-  if (!existingUser.hasShop) {
-    throw new AppError(StatusCodes.NOT_FOUND, "You have no shop!")
-  }
+  // if (!existingUser.hasShop) {
+  //   throw new AppError(StatusCodes.NOT_FOUND, "You have no shop!")
+  // }
 
-  const shop = await Shop.findOne({ user: existingUser._id }).populate('user');
+  const shop = await Shop.findOne({ user: existingUser._id }).populate("user");
   return shop;
-}
+};
 
 export const ShopService = {
   createShop,
-  getMyShop
-}
+  getMyShop,
+};

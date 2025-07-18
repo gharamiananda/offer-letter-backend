@@ -1,39 +1,37 @@
 import { Schema } from "mongoose";
+import { IEmailStatus } from "../release-letter/release-letter.interface";
 
-export enum offerLetterStatus {
-  DRAFT = "draft",
-  SENT = "send",
-  FAILED = "failed",
-}
 export interface IPaySlip extends Document {
   employeeName: string;
   employeeId: string;
-  month: number;
-  year: number;
+  month: string;
+  year: string;
   employeeDesignation: string;
   employeeDepartment: string;
-  employeeUAN: number;
-  employeeESINO: number;
-  basicSalary: number;
-  houseRentAllowance: number;
-  conveyanceAllowance: number;
-  training: number;
-  grossSalary: number;
-  netPay: number;
-  salaryOfEmployee: number;
-  totalWorkingDays: number;
-  totalPresentDays: number;
-  totalAbsent: number;
-  uninformedLeaves: number;
-  halfDay: number;
-  calculatedSalary: number;
-  EPF: number;
+  employeeUAN: string;
+  employeeESINO: string;
+  basicSalary: string;
+  houseRentAllowance: string;
+  conveyanceAllowance: string;
+  training: string;
+  grossSalary: string;
+  netPay: string;
+  salaryOfEmployee: string;
+  totalWorkingDays: string;
+  totalPresentDays: string;
+  totalAbsent: string;
+  uninformedLeaves: string;
+  halfDay: string;
+  calculatedSalary: string;
+  EPF: string;
   ESI: string;
-  professionalTax: number;
-  totalDeductions: number;
+  incentives: string;
+  OT: string;
+  professionalTax: string;
+  totalDeductions: string;
   employeeEmail: string;
   companyName: string;
   dateOfPayment: string;
   generateByUser: Schema.Types.ObjectId;
-  status: offerLetterStatus;
+  status: IEmailStatus;
 }

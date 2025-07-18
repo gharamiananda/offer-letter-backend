@@ -363,7 +363,7 @@ export const generateOfferLetterHTML = (
 		</div>
 
 		<div class="date">
-			Date: <span> 22/Jun/25 </span>
+			Date: <span> ${offerLetter.offerLetterDate} </span>
 		</div>
 
 		<div class="content">
@@ -503,25 +503,6 @@ export const generateOfferLetterHTML = (
 `;
 };
 
-function getMonthName(monthNumber: number) {
-  const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-
-  // Adjust for 1-based input, return month or null if out of range
-  return months[monthNumber - 1] || null;
-}
 export const generatePayslipHTML = (
   offerLetter: IPaySlip,
   logoBase64: string
@@ -532,7 +513,7 @@ export const generatePayslipHTML = (
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Salary Slip - May 2025</title>
+  <title>Salary Slip - ${offerLetter.month} ${offerLetter.year}</title>
  <style>
     body {
       font-family: Arial, sans-serif;
@@ -604,9 +585,9 @@ export const generatePayslipHTML = (
       <td colspan="4" class="sub-header">FITWAY ENCLAVE DN 12, STREET NO 18, SECTOR 5, KOLKATA - 700091</td>
     </tr>
     <tr>
-      <td colspan="4" class="pay-slip-title">Pay Slip <span class=""> ${getMonthName(
+      <td colspan="4" class="pay-slip-title">Pay Slip <span class=""> ${
         offerLetter.month
-      )}  ${offerLetter.year}</span></td>
+      }</span></td>
     </tr>
     <tr>
       <th>Employee Name</th>
@@ -633,20 +614,26 @@ export const generatePayslipHTML = (
       <td class=""> ${offerLetter.totalAbsent ?? 0}</td>
     </tr>
     <tr>
-      <th>UAN NO:</th>
+      <th>UAN NO</th>
       <td>0</td>
       <th>Uninformed Leaves</th>
       <td class=""> ${offerLetter.uninformedLeaves ?? 0}</td>
     </tr>
     <tr>
-      <th>ESI NO:</th>
+      <th>Incentives</th>
+      <td> ${offerLetter.incentives ? offerLetter.incentives : 0}</td>
+      <th>OT</th>
+      <td class="">  ${offerLetter.OT ? offerLetter.OT : 0}</td>
+    </tr>
+    <tr>
+      <th>ESI NO</th>
       <td>0</td>
       <th>Half day</th>
       <td class=""> ${offerLetter.halfDay ?? 0}</td>
     </tr>
     <tr>
       <th colspan="3">Calculated Salary</th>
-      <td>₹${offerLetter?.calculatedSalary?.toFixed(2)}</td>
+      <td>₹${offerLetter?.calculatedSalary}</td>
     </tr>
     <tr class="earnings-header">
       <td colspan="2">Earnings</td>
@@ -680,7 +667,9 @@ export const generatePayslipHTML = (
       <td>Gross Salary</td>
       <td class="">₹ ${offerLetter.grossSalary ?? 0}</td>
       <td>Total Deductions</td>
-      <td class="">₹ ${offerLetter.totalDeductions ?? 0}</td>
+      <td class="">₹ ${
+        offerLetter.totalDeductions ? offerLetter.totalDeductions : 0
+      }</td>
     </tr>
     <tr class="net-pay">
       <td colspan="4">Net Pay ₹ ${offerLetter.netPay ?? 0}</td>
@@ -760,87 +749,3 @@ export const generatePayslipPDF = async (
     throw err;
   }
 };
-
-// export const generateOfferLetterPDF = async (
-//   offerLetter: IOfferLetter
-// ): Promise<Buffer> => {
-//   return new Promise<Buffer>(async (resolve, reject) => {
-//     try {
-//       // Fetch company logo
-//       const logoUrl =
-//         "https://media.cakeresume.com/image/upload/s--k9CQtNTA--/c_pad,fl_png8,h_400,w_400/v1691154551/e6idc2sh97xdrmuafkp7.png";
-//       // Download the logo image as a buffer
-//       const response = await axios.get(logoUrl, {
-//         responseType: "arraybuffer",
-//       });
-//       //   const logoBuffer = Buffer.from(response.data);
-//       //   const response = await axios.get(offerLetter.companyLogo, {
-//       //     responseType: "arraybuffer",
-//       //   });
-//       const logoBuffer = Buffer.from(response.data);
-
-//       const doc = new PDFDocument({ margin: 50 });
-//       const buffers: Buffer[] = [];
-
-//       doc.on("data", (chunk) => buffers.push(chunk));
-//       doc.on("end", () => resolve(Buffer.concat(buffers)));
-//       doc.on("error", (err: Error) => reject(err));
-
-//       // Company Logo
-//       const logoWidth = 80;
-//       const logoX = (doc.page.width - logoWidth) / 2;
-//       doc.image(logoBuffer, logoX, doc.y, { width: logoWidth });
-//       doc.moveDown(2);
-
-//       // Title
-//       doc
-//         .fontSize(18)
-//         .font("Helvetica-Bold")
-//         .fillColor("#003366")
-//         .text("Offer Letter", { align: "center" });
-//       doc.moveDown(1);
-
-//       // Date
-//       doc
-//         .fontSize(12)
-//         .fillColor("black")
-//         .text(`Date: ${offerLetter.offerLetterDate}`);
-//       doc.moveDown(1);
-
-//       // Employee Details
-//       doc.text(`To,`);
-//       doc.text(`${offerLetter.employeeName}`);
-//       doc.text(`${offerLetter.employeeAddress}`);
-//       doc.moveDown(1);
-
-//       doc.text(`Subject: Offer of Employment`);
-//       doc.moveDown(1);
-
-//       // Body
-//       doc
-//         .font("Helvetica")
-//         .text(
-//           `Dear ${offerLetter.employeeName},\n\nWe are pleased to offer you the position of ${offerLetter.employeeDesignation} at ${offerLetter.companyName}. ` +
-//             `Your joining date will be ${offerLetter.employeeDateOfJoin}, and your total annual CTC will be ₹${offerLetter.employeeCtc}.\n\n` +
-//             `This position will be based at our office located at ${offerLetter.companyAddress}. Please report to ${offerLetter.companyContactName}, ` +
-//             `${offerLetter.companyPersonTitle}, on your first day. You may contact them at ${offerLetter.companyContactNumber} or ` +
-//             `${offerLetter.companyPersonalEmail} for any further details.\n\n` +
-//             `We are excited to have you join our team and look forward to a mutually beneficial relationship.\n\n` +
-//             `Sincerely,\n\n${offerLetter.companyContactName}\n${offerLetter.companyPersonTitle}\n${offerLetter.companyName}`
-//         );
-
-//       doc.moveDown(3);
-//       doc
-//         .fontSize(10)
-//         .fillColor("#888888")
-//         .text(
-//           "This is a system-generated letter and does not require a signature.",
-//           { align: "center" }
-//         );
-
-//       doc.end();
-//     } catch (err) {
-//       reject(err);
-//     }
-//   });
-// };

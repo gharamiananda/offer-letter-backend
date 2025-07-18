@@ -1,4 +1,4 @@
-import { Document, Model } from "mongoose";
+import { Document, Model, ObjectId } from "mongoose";
 
 // Enum for User Roles
 export enum UserRole {
@@ -13,7 +13,8 @@ export interface IUser extends Document {
   password: string;
   name: string;
   role: UserRole;
-  hasShop: boolean;
+  hasOrganization: boolean;
+  organization: ObjectId;
   clientInfo: {
     device: "pc" | "mobile"; // Device type
     browser: string; // Browser name
