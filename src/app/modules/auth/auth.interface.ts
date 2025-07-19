@@ -21,5 +21,5 @@ export interface IJwtPayload {
   hasOrganization: boolean;
   role: UserRole;
   isActive: boolean;
-  organization: ObjectId;
+  organization: string;
 }

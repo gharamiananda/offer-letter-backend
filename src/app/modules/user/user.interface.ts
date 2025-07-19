@@ -14,7 +14,7 @@ export interface IUser extends Document {
   name: string;
   role: UserRole;
   hasOrganization: boolean;
-  organization: ObjectId;
+  organization: string;
   clientInfo: {
     device: "pc" | "mobile"; // Device type
     browser: string; // Browser name

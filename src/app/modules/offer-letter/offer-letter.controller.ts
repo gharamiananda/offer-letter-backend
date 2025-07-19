@@ -94,7 +94,7 @@ export const offerLetterController = {
       rows as IOfferLetter[],
       req.user as IJwtPayload
     );
-
+    console.log(rows, "rows");
     sendResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
