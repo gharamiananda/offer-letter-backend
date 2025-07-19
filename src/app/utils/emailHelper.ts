@@ -49,7 +49,8 @@ const sendEmail = async (
     }
 
     const info = await transporter.sendMail(mailOptions);
-    console.log("Email sent:", info.messageId);
+    console.log("Email sent:", info.messageId, email);
+
     return {
       status: IEmailStatus.SENT,
       messageId: info.messageId,
