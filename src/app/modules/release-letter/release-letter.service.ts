@@ -14,8 +14,7 @@ import {
 const limit = pLimit(10); // Max 10 concurrent emails
 async function processOneReleaseLetter(
   offerLetterData: IReleaseLetter,
-  authUser: IJwtPayload,
-  organization: IOrganization
+  authUser: IJwtPayload
 ) {
   const updatedData: IReleaseLetter = { ...offerLetterData };
   let resultStatus = IEmailStatus.FAILED;
@@ -88,12 +87,9 @@ export const releaseLetterService = {
     offerLetters: IReleaseLetter[],
     authUser: IJwtPayload
   ) {
-    const organization = await Organization.findById(authUser?.organization);
     const results = await Promise.all(
       offerLetters.map((data) =>
-        limit(() =>
-          processOneReleaseLetter(data, authUser, organization as IOrganization)
-        )
+        limit(() => processOneReleaseLetter(data, authUser))
       )
     );
 

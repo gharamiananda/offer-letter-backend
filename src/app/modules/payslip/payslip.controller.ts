@@ -32,6 +32,16 @@ export const payslipController = {
       data: result,
     });
   },
+  async getThisMonthPayslipCount(req: Request, res: Response) {
+    const result = await payslipService.getThisMonthPayslipCount();
+
+    sendResponse(res, {
+      statusCode: StatusCodes.OK,
+      success: true,
+      message: "Offer Letter retrived succesfully",
+      data: result,
+    });
+  },
   async getOfferLetterById(req: Request, res: Response) {
     const result = await payslipService.getOfferLetterById(req.params.id);
 

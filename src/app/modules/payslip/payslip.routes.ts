@@ -29,6 +29,12 @@ router.get(
 );
 
 router.get(
+  "/dashboard-payslip",
+  auth(UserRole.ADMIN, UserRole.USER),
+  payslipController.getThisMonthPayslipCount
+);
+
+router.get(
   "/html/:id",
   auth(UserRole.ADMIN, UserRole.USER),
   payslipController.getOfferLetterById

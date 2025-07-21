@@ -82,6 +82,30 @@ export const payslipService = {
       result,
     };
   },
+  async getThisMonthPayslipCount() {
+    const startOfMonth = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth(),
+      1
+    );
+    const endOfMonth = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth() + 1,
+      0,
+      23,
+      59,
+      59,
+      999
+    );
+
+    const currentMonthCount = await PaySlip.countDocuments({
+      createdAt: { $gte: startOfMonth, $lte: endOfMonth },
+    });
+
+    return {
+      currentMonthCount, // add this to the response
+    };
+  },
   async getOfferLetterById(id: string) {
     const offerLetter = await PaySlip.findById(id);
     if (!offerLetter) {
