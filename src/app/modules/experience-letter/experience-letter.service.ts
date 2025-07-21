@@ -11,8 +11,7 @@ import Organization from "../organization/organization.model";
 const limit = pLimit(10); // Max 10 concurrent emails
 async function processOneExperienceLetter(
   offerLetterData: IExperienceLetter,
-  authUser: IJwtPayload,
-  organization: IOrganization
+  authUser: IJwtPayload
 ) {
   const updatedData: IExperienceLetter = { ...offerLetterData };
   let resultStatus = IEmailStatus.FAILED;
@@ -85,16 +84,9 @@ export const experienceLetterService = {
     offerLetters: IExperienceLetter[],
     authUser: IJwtPayload
   ) {
-    const organization = await Organization.findById(authUser?.organization);
     const results = await Promise.all(
       offerLetters.map((data) =>
-        limit(() =>
-          processOneExperienceLetter(
-            data,
-            authUser,
-            organization as IOrganization
-          )
-        )
+        limit(() => processOneExperienceLetter(data, authUser))
       )
     );
 
