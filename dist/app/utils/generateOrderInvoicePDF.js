@@ -15,7 +15,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.generatePayslipPDF = exports.generateOfferLetterPDF = exports.generatePayslipHTML = exports.generateOfferLetterHTML = exports.generateOrderInvoicePDF = void 0;
 const pdfkit_1 = __importDefault(require("pdfkit"));
 const axios_1 = __importDefault(require("axios"));
-const puppeteer_1 = __importDefault(require("puppeteer"));
 /**
  * Generates a PDF invoice for an order.
  * @param {IOrder} order - The order object to generate the invoice for.
@@ -663,26 +662,54 @@ const generatePayslipHTML = (offerLetter, logoBase64) => {
 `;
 };
 exports.generatePayslipHTML = generatePayslipHTML;
+const html_pdf_node_1 = __importDefault(require("html-pdf-node"));
 const generateOfferLetterPDF = (offerLetter) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        // Fetch logo and convert to base64
+        // const logoUrl =
+        //   "https://media.cakeresume.com/image/upload/s--k9CQtNTA--/c_pad,fl_png8,h_400,w_400/v1691154551/e6idc2sh97xdrmuafkp7.png";
+        // const response = await axios.get(logoUrl, { responseType: "arraybuffer" });
+        // const logoBase64 = Buffer.from(response.data).toString("base64");
+        // const htmlContent = generateOfferLetterHTML(offerLetter, logoBase64);
+        // // Launch Puppeteer
+        // const browser = await puppeteer.launch({
+        //   headless: true,
+        //   executablePath: process.env.CHROME_BIN || undefined,
+        //   args: ["--no-sandbox", "--disable-setuid-sandbox"],
+        // });
+        // const page = await browser.newPage();
+        // await page.setContent(htmlContent, { waitUntil: "networkidle0" });
+        // const pdfBuffer = await page.pdf({
+        //   format: "A4",
+        //   margin: { top: "40px", bottom: "60px", left: "40px", right: "40px" },
+        // });
+        // await browser.close();
+        // return Buffer.from(pdfBuffer);
         // Fetch logo and convert to base64
         const logoUrl = "https://media.cakeresume.com/image/upload/s--k9CQtNTA--/c_pad,fl_png8,h_400,w_400/v1691154551/e6idc2sh97xdrmuafkp7.png";
         const response = yield axios_1.default.get(logoUrl, { responseType: "arraybuffer" });
         const logoBase64 = Buffer.from(response.data).toString("base64");
         const htmlContent = (0, exports.generateOfferLetterHTML)(offerLetter, logoBase64);
-        const browser = yield puppeteer_1.default.launch({
-            headless: true,
-            executablePath: "/usr/bin/chromium", // Use the installed Chromium
-            args: ["--no-sandbox", "--disable-setuid-sandbox"],
-        });
-        const page = yield browser.newPage();
-        yield page.setContent(htmlContent, { waitUntil: "networkidle0" });
-        const pdfBuffer = yield page.pdf({
+        const options = {
             format: "A4",
-            margin: { top: "40px", bottom: "60px", left: "40px", right: "40px" },
-        });
-        yield browser.close();
-        return Buffer.from(pdfBuffer);
+            printBackground: true,
+            displayHeaderFooter: false,
+            margin: {
+                top: "0mm",
+                right: "0mm",
+                bottom: "0mm",
+                left: "0mm",
+            },
+            preferCSSPageSize: true,
+            landscape: false,
+        };
+        const file = { content: htmlContent };
+        const pdfBuffer = yield html_pdf_node_1.default.generatePdf(file, options);
+        if (!pdfBuffer || pdfBuffer.length === 0) {
+            throw new Error("Generated PDF is empty");
+        }
+        console.log("PDF generated successfully with html-pdf-node, size:", pdfBuffer.length, "bytes");
+        return pdfBuffer;
     }
     catch (err) {
         console.error("PDF generation failed:", err);
@@ -698,19 +725,39 @@ const generatePayslipPDF = (offerLetter) => __awaiter(void 0, void 0, void 0, fu
         const logoBase64 = Buffer.from(response.data).toString("base64");
         const htmlContent = (0, exports.generatePayslipHTML)(offerLetter, logoBase64);
         // Launch Puppeteer and generate PDF
-        const browser = yield puppeteer_1.default.launch({
-            headless: true,
-            executablePath: "/usr/bin/chromium", // Use the installed Chromium
-            args: ["--no-sandbox", "--disable-setuid-sandbox"],
-        });
-        const page = yield browser.newPage();
-        yield page.setContent(htmlContent, { waitUntil: "networkidle0" });
-        const pdfBuffer = yield page.pdf({
+        // const browser = await puppeteer.launch({
+        //   headless: true,
+        //   executablePath: process.env.CHROME_BIN || undefined,
+        //   args: ["--no-sandbox", "--disable-setuid-sandbox"],
+        // });
+        // const page = await browser.newPage();
+        // await page.setContent(htmlContent, { waitUntil: "networkidle0" });
+        // const pdfBuffer = await page.pdf({
+        //   format: "A4",
+        //   margin: { top: "40px", bottom: "60px", left: "40px", right: "40px" },
+        // });
+        // await browser.close();
+        // return Buffer.from(pdfBuffer);
+        const options = {
             format: "A4",
-            margin: { top: "40px", bottom: "60px", left: "40px", right: "40px" },
-        });
-        yield browser.close();
-        return Buffer.from(pdfBuffer);
+            printBackground: true,
+            displayHeaderFooter: false,
+            margin: {
+                top: "0mm",
+                right: "0mm",
+                bottom: "0mm",
+                left: "0mm",
+            },
+            preferCSSPageSize: true,
+            landscape: false,
+        };
+        const file = { content: htmlContent };
+        const pdfBuffer = yield html_pdf_node_1.default.generatePdf(file, options);
+        if (!pdfBuffer || pdfBuffer.length === 0) {
+            throw new Error("Generated PDF is empty");
+        }
+        console.log("PDF generated successfully with html-pdf-node, size:", pdfBuffer.length, "bytes");
+        return pdfBuffer;
     }
     catch (err) {
         throw err;
