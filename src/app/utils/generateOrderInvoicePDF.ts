@@ -694,10 +694,9 @@ export const generateOfferLetterPDF = async (
 
     const htmlContent = generateOfferLetterHTML(offerLetter, logoBase64);
 
-    // Launch Puppeteer
     const browser = await puppeteer.launch({
       headless: true,
-      executablePath: process.env.CHROME_BIN || undefined,
+      executablePath: "/usr/bin/chromium", // Use the installed Chromium
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
 
@@ -732,9 +731,10 @@ export const generatePayslipPDF = async (
     // Launch Puppeteer and generate PDF
     const browser = await puppeteer.launch({
       headless: true,
-      executablePath: process.env.CHROME_BIN || undefined,
+      executablePath: "/usr/bin/chromium", // Use the installed Chromium
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
+
     const page = await browser.newPage();
     await page.setContent(htmlContent, { waitUntil: "networkidle0" });
 

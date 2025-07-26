@@ -97,6 +97,17 @@ exports.offerLetterController = {
             });
         });
     },
+    getProcessStatus(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const result = yield offer_letter_service_1.offerLetterService.getProcessStatus(req.params.processId);
+            (0, sendResponse_1.default)(res, {
+                statusCode: http_status_codes_1.StatusCodes.CREATED,
+                success: true,
+                message: "Offer Letter retrived succesfully",
+                data: result,
+            });
+        });
+    },
     acknowledgeById: (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
         // async acknowledgeById(req: Request, res: Response) {
         const message = yield offer_letter_service_1.offerLetterService.acknowledgeById(req.params.employeeEmail);
@@ -129,6 +140,17 @@ exports.offerLetterController = {
                 success: true,
                 message: "Bulk offer letters processed",
                 data: results,
+            });
+        });
+    },
+    createBulkOfferLetterWithSocket(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const results = yield offer_letter_service_1.offerLetterService.createBulkOfferLettersWithSocket(req.body, req.user);
+            (0, sendResponse_1.default)(res, {
+                statusCode: http_status_codes_1.StatusCodes.OK,
+                data: results,
+                success: true,
+                message: "Bulk offer letter process started",
             });
         });
     },
