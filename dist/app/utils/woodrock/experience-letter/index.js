@@ -139,7 +139,7 @@ const generateExperienceLetterPDF = (offerLetter) => __awaiter(void 0, void 0, v
         // Launch Puppeteer
         const browser = yield puppeteer_1.default.launch({
             headless: true,
-            executablePath: process.env.CHROME_BIN || undefined,
+            executablePath: "/usr/bin/chromium", // Use the installed Chromium
             args: ["--no-sandbox", "--disable-setuid-sandbox"],
         });
         const page = yield browser.newPage();

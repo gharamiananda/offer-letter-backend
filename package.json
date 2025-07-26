@@ -7,12 +7,14 @@
   "author": "Next Level Web Development Team",
   "license": "MIT",
   "scripts": {
-    "start": "node dist/server.js",
-    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
-    "build": "tsc",
-    "create-module": "npx ts-node src/scripts/createModule.ts",
-    "deploy": "yarn build && vercel && vercel --prod"
-  },
+  "start": "node dist/server.js",
+  "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+  "build": "tsc",
+  "create-module": "npx ts-node src/scripts/createModule.ts",
+  "deploy": "yarn build && vercel && vercel --prod",
+  "postinstall": "PUPPETEER_SKIP_DOWNLOAD=true"
+}
+,
   "dependencies": {
     "@netlify/functions": "^4.1.8",
     "@types/nodemailer": "^6.4.17",
@@ -34,8 +36,10 @@
     "pdfkit": "^0.16.0",
     "puppeteer": "^24.10.1",
     "serverless-http": "^3.2.0",
+    "socket.io": "^4.8.1",
     "sslcommerz-lts": "^1.1.0",
     "ua-parser-js": "^2.0.0",
+    "uuid": "^11.1.0",
     "xlsx": "^0.18.5",
     "zod": "^3.24.1"
   },

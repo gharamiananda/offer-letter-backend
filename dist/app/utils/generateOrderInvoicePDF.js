@@ -670,10 +670,9 @@ const generateOfferLetterPDF = (offerLetter) => __awaiter(void 0, void 0, void 0
         const response = yield axios_1.default.get(logoUrl, { responseType: "arraybuffer" });
         const logoBase64 = Buffer.from(response.data).toString("base64");
         const htmlContent = (0, exports.generateOfferLetterHTML)(offerLetter, logoBase64);
-        // Launch Puppeteer
         const browser = yield puppeteer_1.default.launch({
             headless: true,
-            executablePath: process.env.CHROME_BIN || undefined,
+            executablePath: "/usr/bin/chromium", // Use the installed Chromium
             args: ["--no-sandbox", "--disable-setuid-sandbox"],
         });
         const page = yield browser.newPage();
@@ -701,7 +700,7 @@ const generatePayslipPDF = (offerLetter) => __awaiter(void 0, void 0, void 0, fu
         // Launch Puppeteer and generate PDF
         const browser = yield puppeteer_1.default.launch({
             headless: true,
-            executablePath: process.env.CHROME_BIN || undefined,
+            executablePath: "/usr/bin/chromium", // Use the installed Chromium
             args: ["--no-sandbox", "--disable-setuid-sandbox"],
         });
         const page = yield browser.newPage();

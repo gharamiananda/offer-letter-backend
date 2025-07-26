@@ -21,40 +21,10 @@ const generateOrderInvoicePDF_1 = require("../../utils/generateOrderInvoicePDF")
 const offer_letter_model_1 = __importDefault(require("./offer-letter.model"));
 const appError_1 = __importDefault(require("../../errors/appError"));
 const release_letter_interface_1 = require("../release-letter/release-letter.interface");
+const socket_manager_1 = require("../socket/socket-manager");
+const processStatuses = new Map();
+const uuid_1 = require("uuid");
 const limit = (0, p_limit_1.default)(10); // Max 10 concurrent emails
-function processOneOfferLetter(offerLetterData, authUser) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const updatedData = Object.assign({}, offerLetterData);
-        let resultStatus = release_letter_interface_1.IEmailStatus.FAILED;
-        try {
-            const emailContent = yield emailHelper_1.EmailHelper.createEmailContent(Object.assign({ userName: offerLetterData.employeeEmail || "" }, updatedData), "offerLetter");
-            const pdfBuffer = yield (0, generateOrderInvoicePDF_1.generateOfferLetterPDF)(offerLetterData);
-            const attachment = {
-                filename: `offerletter_${offerLetterData.employeeEmail}.pdf`,
-                content: pdfBuffer,
-                encoding: "base64", // if necessary
-            };
-            const emailResult = yield emailHelper_1.EmailHelper.sendEmail(
-            //@ts-ignore
-            offerLetterData.employeeEmail, emailContent, "Offer letter confirmed!", attachment);
-            resultStatus =
-                emailResult.status === release_letter_interface_1.IEmailStatus.SENT
-                    ? release_letter_interface_1.IEmailStatus.SENT
-                    : release_letter_interface_1.IEmailStatus.FAILED;
-            updatedData.status = resultStatus;
-        }
-        catch (error) {
-            console.error(`Failed for ${offerLetterData.employeeEmail}:`, error);
-            updatedData.status = release_letter_interface_1.IEmailStatus.FAILED;
-        }
-        const newOfferLetter = new offer_letter_model_1.default(Object.assign(Object.assign({}, updatedData), { generateByUser: authUser.userId }));
-        yield newOfferLetter.save();
-        return {
-            email: offerLetterData.employeeEmail,
-            status: updatedData.status,
-        };
-    });
-}
 exports.offerLetterService = {
     getOfferLetterAll(query) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -140,8 +110,163 @@ exports.offerLetterService = {
     },
     createBulkOfferLetters(offerLetters, authUser) {
         return __awaiter(this, void 0, void 0, function* () {
-            const results = yield Promise.all(offerLetters.map((data) => limit(() => processOneOfferLetter(data, authUser))));
+            const results = yield Promise.all(offerLetters.map((data) => limit(() => this.processOneOfferLetter(data, authUser))));
             return results;
         });
+    },
+    // Async processing function
+    processOfferLettersAsync(offerLetters, authUser, processId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const status = processStatuses.get(processId);
+            if (!status)
+                return;
+            // Update status to processing
+            status.status = "PROCESSING";
+            socket_manager_1.SocketManager.emitProcessUpdate(processId, Object.assign({}, status));
+            try {
+                const results = yield Promise.all(offerLetters.map((data) => limit(() => this.processOneOfferLetterWithSocket(data, authUser, processId))));
+                console.log(`Bulk process ${processId} completed with ${results.length} results`);
+            }
+            catch (error) {
+                console.error("Bulk process failed:", error);
+                const errorStatus = processStatuses.get(processId);
+                if (errorStatus) {
+                    errorStatus.status = "FAILED";
+                    socket_manager_1.SocketManager.emitProcessComplete(processId, Object.assign({}, errorStatus));
+                }
+            }
+        });
+    },
+    // New socket-enabled bulk function
+    createBulkOfferLettersWithSocket(offerLetters, authUser) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const processId = (0, uuid_1.v4)();
+            const total = offerLetters.length;
+            // Initialize process status
+            const initialStatus = {
+                processId,
+                total,
+                sent: 0,
+                failed: 0,
+                pending: total,
+                status: "PENDING",
+                completedEmails: [],
+                failedEmails: [],
+            };
+            processStatuses.set(processId, initialStatus);
+            // Start processing asynchronously (don't await)
+            this.processOfferLettersAsync(offerLetters, authUser, processId).catch((error) => {
+                console.error(`Process ${processId} failed:`, error);
+                const errorStatus = processStatuses.get(processId);
+                if (errorStatus) {
+                    errorStatus.status = "FAILED";
+                    socket_manager_1.SocketManager.emitProcessComplete(processId, Object.assign({}, errorStatus));
+                }
+            });
+            return { processId, status: "started" };
+        });
+    },
+    processOneOfferLetter(offerLetterData, authUser) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const updatedData = Object.assign({}, offerLetterData);
+            let resultStatus = release_letter_interface_1.IEmailStatus.FAILED;
+            try {
+                const emailContent = yield emailHelper_1.EmailHelper.createEmailContent(Object.assign({ userName: offerLetterData.employeeEmail || "" }, updatedData), "offerLetter");
+                const pdfBuffer = yield (0, generateOrderInvoicePDF_1.generateOfferLetterPDF)(offerLetterData);
+                const attachment = {
+                    filename: `offerletter_${offerLetterData.employeeEmail}.pdf`,
+                    content: pdfBuffer,
+                    encoding: "base64", // if necessary
+                };
+                const emailResult = yield emailHelper_1.EmailHelper.sendEmail(
+                //@ts-ignore
+                offerLetterData.employeeEmail, emailContent, "Offer letter confirmed!", attachment);
+                resultStatus =
+                    emailResult.status === release_letter_interface_1.IEmailStatus.SENT
+                        ? release_letter_interface_1.IEmailStatus.SENT
+                        : release_letter_interface_1.IEmailStatus.FAILED;
+                updatedData.status = resultStatus;
+            }
+            catch (error) {
+                console.error(`Failed for ${offerLetterData.employeeEmail}:`, error);
+                updatedData.status = release_letter_interface_1.IEmailStatus.FAILED;
+            }
+            const newOfferLetter = new offer_letter_model_1.default(Object.assign(Object.assign({}, updatedData), { generateByUser: authUser.userId }));
+            yield newOfferLetter.save();
+            return {
+                email: offerLetterData.employeeEmail,
+                status: updatedData.status,
+            };
+        });
+    },
+    processOneOfferLetterWithSocket(offerLetterData, authUser, processId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const result = yield this.processOneOfferLetter(offerLetterData, authUser);
+            // Update process status after processing each email
+            this.updateProcessStatus(processId, offerLetterData.employeeEmail, result.status);
+            return result;
+        });
+    },
+    // Helper function to update process status
+    updateProcessStatus(processId, email, status) {
+        const processStatus = processStatuses.get(processId);
+        if (!processStatus)
+            return;
+        if (status === release_letter_interface_1.IEmailStatus.SENT) {
+            processStatus.sent++;
+            processStatus.completedEmails.push(email);
+        }
+        else {
+            processStatus.failed++;
+            processStatus.failedEmails.push(email);
+        }
+        processStatus.pending =
+            processStatus.total - processStatus.sent - processStatus.failed;
+        // Update status
+        if (processStatus.pending === 0) {
+            processStatus.status =
+                processStatus.failed === processStatus.total ? "FAILED" : "COMPLETED";
+        }
+        // Emit update to all clients in the process room
+        socket_manager_1.SocketManager.emitProcessUpdate(processId, Object.assign({}, processStatus));
+        // If process is complete, emit completion event
+        if (processStatus.pending === 0) {
+            socket_manager_1.SocketManager.emitProcessComplete(processId, Object.assign({}, processStatus));
+            // Clean up after 5 minutes
+            setTimeout(() => {
+                processStatuses.delete(processId);
+            }, 300000);
+        }
+    },
+    // Get process status
+    getProcessStatus(processId) {
+        return processStatuses.get(processId) || null;
+    },
+    // Get all active processes
+    getAllActiveProcesses() {
+        return Array.from(processStatuses.values());
+    },
+    // Cancel/delete a process
+    cancelProcess(processId) {
+        const deleted = processStatuses.delete(processId);
+        if (deleted) {
+            socket_manager_1.SocketManager.emitProcessCancelled(processId);
+        }
+        return deleted;
+    },
+    // Clean up expired processes (call this periodically)
+    cleanupExpiredProcesses() {
+        const now = Date.now();
+        const maxAge = 24 * 60 * 60 * 1000; // 24 hours
+        for (const [processId, status] of processStatuses.entries()) {
+            if (status.status === "COMPLETED" || status.status === "FAILED") {
+                // Check if process is older than maxAge (you'd need to add timestamp to status)
+                // For now, just clean up completed processes after some time
+                if (processStatuses.size > 100) {
+                    // Prevent memory bloat
+                    processStatuses.delete(processId);
+                }
+            }
+        }
     },
 };

@@ -141,7 +141,7 @@ export const generateReleaseLetterPDF = async (
     // Launch Puppeteer
     const browser = await puppeteer.launch({
       headless: true,
-      executablePath: process.env.CHROME_BIN || undefined,
+      executablePath: "/usr/bin/chromium", // Use the installed Chromium
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
 

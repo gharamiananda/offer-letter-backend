@@ -55,6 +55,18 @@ export const offerLetterController = {
       data: result,
     });
   },
+  async getProcessStatus(req: Request, res: Response) {
+    const result = await offerLetterService.getProcessStatus(
+      req.params.processId
+    );
+
+    sendResponse(res, {
+      statusCode: StatusCodes.CREATED,
+      success: true,
+      message: "Offer Letter retrived succesfully",
+      data: result,
+    });
+  },
   acknowledgeById: catchAsync(async (req, res) => {
     // async acknowledgeById(req: Request, res: Response) {
     const message = await offerLetterService.acknowledgeById(
@@ -100,6 +112,18 @@ export const offerLetterController = {
       success: true,
       message: "Bulk offer letters processed",
       data: results,
+    });
+  },
+  async createBulkOfferLetterWithSocket(req: Request, res: Response) {
+    const results = await offerLetterService.createBulkOfferLettersWithSocket(
+      req.body,
+      req.user as IJwtPayload
+    );
+    sendResponse(res, {
+      statusCode: StatusCodes.OK,
+      data: results,
+      success: true,
+      message: "Bulk offer letter process started",
     });
   },
 };
