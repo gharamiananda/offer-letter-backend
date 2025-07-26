@@ -7,14 +7,13 @@
   "author": "Next Level Web Development Team",
   "license": "MIT",
   "scripts": {
-  "start": "node dist/server.js",
-  "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
-  "build": "tsc",
-  "create-module": "npx ts-node src/scripts/createModule.ts",
-  "deploy": "yarn build && vercel && vercel --prod",
-  "postinstall": "PUPPETEER_SKIP_DOWNLOAD=true"
-}
-,
+    "start": "node dist/server.js",
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "build": "tsc",
+    "create-module": "npx ts-node src/scripts/createModule.ts",
+    "deploy": "yarn build && vercel && vercel --prod",
+    "postinstall": "PUPPETEER_SKIP_DOWNLOAD=true"
+  },
   "dependencies": {
     "@netlify/functions": "^4.1.8",
     "@types/nodemailer": "^6.4.17",
@@ -26,6 +25,8 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "handlebars": "^4.7.8",
+    "html-pdf-chrome": "^0.8.4",
+    "html-pdf-node": "^1.0.8",
     "http-status-codes": "^2.3.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.9.5",
@@ -48,6 +49,7 @@
     "@types/cookie-parser": "^1.4.8",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.3",
+    "@types/html-pdf-node": "^1.0.2",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/multer": "^1.4.12",
     "@types/node": "^22.10.1",

@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.generateReleaseLetterPDF = exports.generateReleaseLetterHTML = void 0;
 const axios_1 = __importDefault(require("axios"));
-const puppeteer_1 = __importDefault(require("puppeteer"));
+const html_pdf_node_1 = __importDefault(require("html-pdf-node"));
 const generateReleaseLetterHTML = (releaseLetter, logoBase64) => {
     return `<!DOCTYPE html>
 <html lang="en">
@@ -137,20 +137,40 @@ const generateReleaseLetterPDF = (offerLetter) => __awaiter(void 0, void 0, void
         const response = yield axios_1.default.get(logoUrl, { responseType: "arraybuffer" });
         const logoBase64 = Buffer.from(response.data).toString("base64");
         const htmlContent = (0, exports.generateReleaseLetterHTML)(offerLetter, logoBase64);
-        // Launch Puppeteer
-        const browser = yield puppeteer_1.default.launch({
-            headless: true,
-            executablePath: "/usr/bin/chromium", // Use the installed Chromium
-            args: ["--no-sandbox", "--disable-setuid-sandbox"],
-        });
-        const page = yield browser.newPage();
-        yield page.setContent(htmlContent, { waitUntil: "networkidle0" });
-        const pdfBuffer = yield page.pdf({
+        // // Launch Puppeteer
+        // const browser = await puppeteer.launch({
+        //   headless: true,
+        //   executablePath: "/usr/bin/chromium", // Use the installed Chromium
+        //   args: ["--no-sandbox", "--disable-setuid-sandbox"],
+        // });
+        // const page = await browser.newPage();
+        // await page.setContent(htmlContent, { waitUntil: "networkidle0" });
+        // const pdfBuffer = await page.pdf({
+        //   format: "A4",
+        //   margin: { top: "40px", bottom: "60px", left: "40px", right: "40px" },
+        // });
+        // await browser.close();
+        // return Buffer.from(pdfBuffer);
+        const options = {
             format: "A4",
-            margin: { top: "40px", bottom: "60px", left: "40px", right: "40px" },
-        });
-        yield browser.close();
-        return Buffer.from(pdfBuffer);
+            printBackground: true,
+            displayHeaderFooter: false,
+            margin: {
+                top: "0mm",
+                right: "0mm",
+                bottom: "0mm",
+                left: "0mm",
+            },
+            preferCSSPageSize: true,
+            landscape: false,
+        };
+        const file = { content: htmlContent };
+        const pdfBuffer = yield html_pdf_node_1.default.generatePdf(file, options);
+        if (!pdfBuffer || pdfBuffer.length === 0) {
+            throw new Error("Generated PDF is empty");
+        }
+        console.log("PDF generated successfully with html-pdf-node, size:", pdfBuffer.length, "bytes");
+        return pdfBuffer;
     }
     catch (err) {
         console.error("PDF generation failed:", err);

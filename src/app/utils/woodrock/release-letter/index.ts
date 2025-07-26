@@ -1,8 +1,9 @@
 import axios from "axios";
 
-import puppeteer from "puppeteer";
 import { IOfferLetter } from "../../../modules/offer-letter/offer-letter.interface";
 import { IReleaseLetter } from "../../../modules/release-letter/release-letter.interface";
+import htmlPdf from "html-pdf-node";
+
 export const generateReleaseLetterHTML = (
   releaseLetter: IReleaseLetter,
   logoBase64: string
@@ -138,23 +139,51 @@ export const generateReleaseLetterPDF = async (
 
     const htmlContent = generateReleaseLetterHTML(offerLetter, logoBase64);
 
-    // Launch Puppeteer
-    const browser = await puppeteer.launch({
-      headless: true,
-      executablePath: "/usr/bin/chromium", // Use the installed Chromium
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
+    // // Launch Puppeteer
+    // const browser = await puppeteer.launch({
+    //   headless: true,
+    //   executablePath: "/usr/bin/chromium", // Use the installed Chromium
+    //   args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    // });
 
-    const page = await browser.newPage();
-    await page.setContent(htmlContent, { waitUntil: "networkidle0" });
+    // const page = await browser.newPage();
+    // await page.setContent(htmlContent, { waitUntil: "networkidle0" });
 
-    const pdfBuffer = await page.pdf({
+    // const pdfBuffer = await page.pdf({
+    //   format: "A4",
+    //   margin: { top: "40px", bottom: "60px", left: "40px", right: "40px" },
+    // });
+
+    // await browser.close();
+    // return Buffer.from(pdfBuffer);
+
+    const options = {
       format: "A4",
-      margin: { top: "40px", bottom: "60px", left: "40px", right: "40px" },
-    });
+      printBackground: true,
+      displayHeaderFooter: false,
+      margin: {
+        top: "0mm",
+        right: "0mm",
+        bottom: "0mm",
+        left: "0mm",
+      },
+      preferCSSPageSize: true,
+      landscape: false,
+    };
 
-    await browser.close();
-    return Buffer.from(pdfBuffer);
+    const file = { content: htmlContent };
+    const pdfBuffer: any = await htmlPdf.generatePdf(file, options);
+
+    if (!pdfBuffer || pdfBuffer.length === 0) {
+      throw new Error("Generated PDF is empty");
+    }
+
+    console.log(
+      "PDF generated successfully with html-pdf-node, size:",
+      pdfBuffer.length,
+      "bytes"
+    );
+    return pdfBuffer;
   } catch (err) {
     console.error("PDF generation failed:", err);
     throw err;
