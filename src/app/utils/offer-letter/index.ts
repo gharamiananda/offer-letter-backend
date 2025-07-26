@@ -2,7 +2,6 @@ import axios from "axios";
 import { IOfferLetter } from "../../modules/offer-letter/offer-letter.interface";
 import htmlPdf from "html-pdf-node";
 
-// import puppeteer from "puppeteer";
 export const generateOfferLetterHTML = (
   offerLetter: IOfferLetter,
   logoBase64: string

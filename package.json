@@ -9,7 +9,9 @@
   "scripts": {
     "start": "node dist/server.js",
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "create-module": "npx ts-node src/scripts/createModule.ts",
+    "deploy": "yarn build && vercel && vercel --prod"
   },
   "dependencies": {
     "@netlify/functions": "^4.1.8",
