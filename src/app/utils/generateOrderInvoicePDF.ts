@@ -3,7 +3,7 @@ import { IOrder } from "../modules/order/order.interface";
 import axios from "axios";
 import { IOfferLetter } from "../modules/offer-letter/offer-letter.interface";
 
-import puppeteer from "puppeteer";
+// import puppeteer from "puppeteer";
 import { IPaySlip } from "../modules/payslip/payslip.interface";
 /**
  * Generates a PDF invoice for an order.
@@ -682,10 +682,38 @@ export const generatePayslipHTML = (
 
 `;
 };
+import htmlPdf from "html-pdf-node";
+
 export const generateOfferLetterPDF = async (
   offerLetter: IOfferLetter
 ): Promise<Buffer> => {
   try {
+    // Fetch logo and convert to base64
+    // const logoUrl =
+    //   "https://media.cakeresume.com/image/upload/s--k9CQtNTA--/c_pad,fl_png8,h_400,w_400/v1691154551/e6idc2sh97xdrmuafkp7.png";
+    // const response = await axios.get(logoUrl, { responseType: "arraybuffer" });
+    // const logoBase64 = Buffer.from(response.data).toString("base64");
+
+    // const htmlContent = generateOfferLetterHTML(offerLetter, logoBase64);
+
+    // // Launch Puppeteer
+    // const browser = await puppeteer.launch({
+    //   headless: true,
+    //   executablePath: process.env.CHROME_BIN || undefined,
+    //   args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    // });
+
+    // const page = await browser.newPage();
+    // await page.setContent(htmlContent, { waitUntil: "networkidle0" });
+
+    // const pdfBuffer = await page.pdf({
+    //   format: "A4",
+    //   margin: { top: "40px", bottom: "60px", left: "40px", right: "40px" },
+    // });
+
+    // await browser.close();
+    // return Buffer.from(pdfBuffer);
+
     // Fetch logo and convert to base64
     const logoUrl =
       "https://media.cakeresume.com/image/upload/s--k9CQtNTA--/c_pad,fl_png8,h_400,w_400/v1691154551/e6idc2sh97xdrmuafkp7.png";
@@ -693,23 +721,33 @@ export const generateOfferLetterPDF = async (
     const logoBase64 = Buffer.from(response.data).toString("base64");
 
     const htmlContent = generateOfferLetterHTML(offerLetter, logoBase64);
-
-    const browser = await puppeteer.launch({
-      headless: true,
-      executablePath: "/usr/bin/chromium", // Use the installed Chromium
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
-
-    const page = await browser.newPage();
-    await page.setContent(htmlContent, { waitUntil: "networkidle0" });
-
-    const pdfBuffer = await page.pdf({
+    const options = {
       format: "A4",
-      margin: { top: "40px", bottom: "60px", left: "40px", right: "40px" },
-    });
+      printBackground: true,
+      displayHeaderFooter: false,
+      margin: {
+        top: "0mm",
+        right: "0mm",
+        bottom: "0mm",
+        left: "0mm",
+      },
+      preferCSSPageSize: true,
+      landscape: false,
+    };
 
-    await browser.close();
-    return Buffer.from(pdfBuffer);
+    const file = { content: htmlContent };
+    const pdfBuffer: any = await htmlPdf.generatePdf(file, options);
+
+    if (!pdfBuffer || pdfBuffer.length === 0) {
+      throw new Error("Generated PDF is empty");
+    }
+
+    console.log(
+      "PDF generated successfully with html-pdf-node, size:",
+      pdfBuffer.length,
+      "bytes"
+    );
+    return pdfBuffer;
   } catch (err) {
     console.error("PDF generation failed:", err);
     throw err;
@@ -729,22 +767,48 @@ export const generatePayslipPDF = async (
     const htmlContent = generatePayslipHTML(offerLetter, logoBase64);
 
     // Launch Puppeteer and generate PDF
-    const browser = await puppeteer.launch({
-      headless: true,
-      executablePath: "/usr/bin/chromium", // Use the installed Chromium
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
+    // const browser = await puppeteer.launch({
+    //   headless: true,
+    //   executablePath: process.env.CHROME_BIN || undefined,
+    //   args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    // });
+    // const page = await browser.newPage();
+    // await page.setContent(htmlContent, { waitUntil: "networkidle0" });
 
-    const page = await browser.newPage();
-    await page.setContent(htmlContent, { waitUntil: "networkidle0" });
+    // const pdfBuffer = await page.pdf({
+    //   format: "A4",
+    //   margin: { top: "40px", bottom: "60px", left: "40px", right: "40px" },
+    // });
 
-    const pdfBuffer = await page.pdf({
+    // await browser.close();
+    // return Buffer.from(pdfBuffer);
+    const options = {
       format: "A4",
-      margin: { top: "40px", bottom: "60px", left: "40px", right: "40px" },
-    });
+      printBackground: true,
+      displayHeaderFooter: false,
+      margin: {
+        top: "0mm",
+        right: "0mm",
+        bottom: "0mm",
+        left: "0mm",
+      },
+      preferCSSPageSize: true,
+      landscape: false,
+    };
 
-    await browser.close();
-    return Buffer.from(pdfBuffer);
+    const file = { content: htmlContent };
+    const pdfBuffer: any = await htmlPdf.generatePdf(file, options);
+
+    if (!pdfBuffer || pdfBuffer.length === 0) {
+      throw new Error("Generated PDF is empty");
+    }
+
+    console.log(
+      "PDF generated successfully with html-pdf-node, size:",
+      pdfBuffer.length,
+      "bytes"
+    );
+    return pdfBuffer;
   } catch (err) {
     throw err;
   }
