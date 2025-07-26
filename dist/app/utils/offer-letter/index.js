@@ -15,7 +15,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.generateOfferLetterPDF = exports.generateOfferLetterHTML = void 0;
 const axios_1 = __importDefault(require("axios"));
 const html_pdf_node_1 = __importDefault(require("html-pdf-node"));
-// import puppeteer from "puppeteer";
 const generateOfferLetterHTML = (offerLetter, logoBase64) => {
     return `<!DOCTYPE html>
 <html lang="en">

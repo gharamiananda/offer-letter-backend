@@ -11,8 +11,7 @@
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",
     "create-module": "npx ts-node src/scripts/createModule.ts",
-    "deploy": "yarn build && vercel && vercel --prod",
-    "postinstall": "PUPPETEER_SKIP_DOWNLOAD=true"
+    "deploy": "yarn build && vercel && vercel --prod"
   },
   "dependencies": {
     "@netlify/functions": "^4.1.8",
@@ -35,7 +34,6 @@
     "nodemailer": "^6.9.16",
     "p-limit": "^6.2.0",
     "pdfkit": "^0.16.0",
-    "puppeteer": "^24.10.1",
     "serverless-http": "^3.2.0",
     "socket.io": "^4.8.1",
     "sslcommerz-lts": "^1.1.0",

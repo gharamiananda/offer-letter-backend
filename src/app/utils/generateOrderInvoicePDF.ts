@@ -3,7 +3,6 @@ import { IOrder } from "../modules/order/order.interface";
 import axios from "axios";
 import { IOfferLetter } from "../modules/offer-letter/offer-letter.interface";
 
-// import puppeteer from "puppeteer";
 import { IPaySlip } from "../modules/payslip/payslip.interface";
 /**
  * Generates a PDF invoice for an order.
