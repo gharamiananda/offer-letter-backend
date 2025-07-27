@@ -1,8 +1,7 @@
 import axios from "axios";
 
-import { IOfferLetter } from "../../../modules/offer-letter/offer-letter.interface";
-import { IReleaseLetter } from "../../../modules/release-letter/release-letter.interface";
 import htmlPdf from "html-pdf-node";
+import { IReleaseLetter } from "../../../modules/release-letter/release-letter.interface";
 
 export const generateReleaseLetterHTML = (
   releaseLetter: IReleaseLetter,
