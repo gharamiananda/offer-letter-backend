@@ -1,21 +1,17 @@
 import { StatusCodes } from "http-status-codes";
 import pLimit from "p-limit";
+import { v4 as uuidv4 } from "uuid";
 import QueryBuilder from "../../builder/QueryBuilder";
-import { EmailHelper } from "../../utils/emailHelper";
-import {
-  generateOfferLetterHTML,
-  generateOfferLetterPDF,
-} from "../../utils/generateOrderInvoicePDF";
-import { IJwtPayload } from "../auth/auth.interface";
-import { IOfferLetter } from "./offer-letter.interface";
-import OfferLetter from "./offer-letter.model";
 import AppError from "../../errors/appError";
-import Organization from "../organization/organization.model";
-import { IOrganization } from "../organization/organization.interface";
+import { EmailHelper } from "../../utils/emailHelper";
+import { generateOfferLetterHTML } from "../../utils/generateOrderInvoicePDF";
+import { generateOfferLetterPDFByPdfKIt } from "../../utils/offer-letter";
+import { IJwtPayload } from "../auth/auth.interface";
 import { IEmailStatus } from "../release-letter/release-letter.interface";
 import { IBulkProcessStatus, SocketManager } from "../socket/socket-manager";
+import { IOfferLetter } from "./offer-letter.interface";
+import OfferLetter from "./offer-letter.model";
 const processStatuses = new Map<string, IBulkProcessStatus>();
-import { v4 as uuidv4 } from "uuid";
 
 const limit = pLimit(10); // Max 10 concurrent emails
 
@@ -98,7 +94,7 @@ export const offerLetterService = {
         { userName: offerLetterData.employeeEmail || "", ...updatedData },
         "offerLetter"
       );
-      const pdfBuffer = await generateOfferLetterPDF(offerLetterData);
+      const pdfBuffer = await generateOfferLetterPDFByPdfKIt(offerLetterData);
 
       const attachment = {
         filename: `offerletter_${offerLetterData.employeeEmail}.pdf`,
@@ -226,7 +222,7 @@ export const offerLetterService = {
         "offerLetter"
       );
 
-      const pdfBuffer = await generateOfferLetterPDF(offerLetterData);
+      const pdfBuffer = await generateOfferLetterPDFByPdfKIt(offerLetterData);
 
       const attachment = {
         filename: `offerletter_${offerLetterData.employeeEmail}.pdf`,
