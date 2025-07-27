@@ -15,15 +15,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.offerLetterService = void 0;
 const http_status_codes_1 = require("http-status-codes");
 const p_limit_1 = __importDefault(require("p-limit"));
+const uuid_1 = require("uuid");
 const QueryBuilder_1 = __importDefault(require("../../builder/QueryBuilder"));
+const appError_1 = __importDefault(require("../../errors/appError"));
 const emailHelper_1 = require("../../utils/emailHelper");
 const generateOrderInvoicePDF_1 = require("../../utils/generateOrderInvoicePDF");
-const offer_letter_model_1 = __importDefault(require("./offer-letter.model"));
-const appError_1 = __importDefault(require("../../errors/appError"));
+const offer_letter_1 = require("../../utils/offer-letter");
 const release_letter_interface_1 = require("../release-letter/release-letter.interface");
 const socket_manager_1 = require("../socket/socket-manager");
+const offer_letter_model_1 = __importDefault(require("./offer-letter.model"));
 const processStatuses = new Map();
-const uuid_1 = require("uuid");
 const limit = (0, p_limit_1.default)(10); // Max 10 concurrent emails
 exports.offerLetterService = {
     getOfferLetterAll(query) {
@@ -87,7 +88,7 @@ exports.offerLetterService = {
             const updatedData = Object.assign({}, offerLetterData);
             if ((offerLetterData.status = release_letter_interface_1.IEmailStatus.SENT)) {
                 const emailContent = yield emailHelper_1.EmailHelper.createEmailContent(Object.assign({ userName: offerLetterData.employeeEmail || "" }, updatedData), "offerLetter");
-                const pdfBuffer = yield (0, generateOrderInvoicePDF_1.generateOfferLetterPDF)(offerLetterData);
+                const pdfBuffer = yield (0, offer_letter_1.generateOfferLetterPDFByPdfKIt)(offerLetterData);
                 const attachment = {
                     filename: `offerletter_${offerLetterData.employeeEmail}.pdf`,
                     content: pdfBuffer,
@@ -172,7 +173,7 @@ exports.offerLetterService = {
             let resultStatus = release_letter_interface_1.IEmailStatus.FAILED;
             try {
                 const emailContent = yield emailHelper_1.EmailHelper.createEmailContent(Object.assign({ userName: offerLetterData.employeeEmail || "" }, updatedData), "offerLetter");
-                const pdfBuffer = yield (0, generateOrderInvoicePDF_1.generateOfferLetterPDF)(offerLetterData);
+                const pdfBuffer = yield (0, offer_letter_1.generateOfferLetterPDFByPdfKIt)(offerLetterData);
                 const attachment = {
                     filename: `offerletter_${offerLetterData.employeeEmail}.pdf`,
                     content: pdfBuffer,

@@ -95,7 +95,7 @@ userSchema.post("save", function (doc, next) {
 });
 
 userSchema.set("toJSON", {
-  transform: (_doc, ret) => {
+  transform: (_doc, ret: Record<string, any>) => {
     delete ret.password;
     return ret;
   },
