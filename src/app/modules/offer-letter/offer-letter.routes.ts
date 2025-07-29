@@ -54,7 +54,7 @@ router.post(
 );
 
 router.post(
-  "/upload-offer-letter-csv-socket",
+  "/upload-letter-csv-socket",
   auth(UserRole.ADMIN, UserRole.USER),
   offerLetterController.createBulkOfferLetterWithSocket
 );

@@ -24,7 +24,7 @@ router.get("/", (0, auth_1.default)(user_interface_1.UserRole.ADMIN, user_interf
 router.get("/html/:id", (0, auth_1.default)(user_interface_1.UserRole.ADMIN, user_interface_1.UserRole.USER), offer_letter_controller_1.offerLetterController.getOfferLetterById);
 router.get("/process-status/:processId", (0, auth_1.default)(user_interface_1.UserRole.ADMIN, user_interface_1.UserRole.USER), offer_letter_controller_1.offerLetterController.getProcessStatus);
 router.post("/offer-acknowledge/:employeeEmail", offer_letter_controller_1.offerLetterController.acknowledgeById);
-router.post("/upload-offer-letter-csv-socket", (0, auth_1.default)(user_interface_1.UserRole.ADMIN, user_interface_1.UserRole.USER), offer_letter_controller_1.offerLetterController.createBulkOfferLetterWithSocket);
+router.post("/upload-letter-csv-socket", (0, auth_1.default)(user_interface_1.UserRole.ADMIN, user_interface_1.UserRole.USER), offer_letter_controller_1.offerLetterController.createBulkOfferLetterWithSocket);
 // New socket-enabled bulk endpoint
 // router.post('/bulk-socket', authMiddleware, async (req, res) => {
 //   try {

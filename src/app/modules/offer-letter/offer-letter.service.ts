@@ -8,12 +8,12 @@ import { generateOfferLetterHTML } from "../../utils/generateOrderInvoicePDF";
 import { generateOfferLetterPDFByPdfKIt } from "../../utils/offer-letter";
 import { IJwtPayload } from "../auth/auth.interface";
 import { IEmailStatus } from "../release-letter/release-letter.interface";
-import { IBulkProcessStatus, SocketManager } from "../socket/socket-manager";
+import { IBulkProcessStatus } from "../socket/socket-manager";
 import { IOfferLetter } from "./offer-letter.interface";
 import OfferLetter from "./offer-letter.model";
 const processStatuses = new Map<string, IBulkProcessStatus>();
 
-const limit = pLimit(10); // Max 10 concurrent emails
+const limit = pLimit(1); // Max 10 concurrent emails
 
 export const offerLetterService = {
   async getOfferLetterAll(query: Record<string, unknown>) {
@@ -148,9 +148,9 @@ export const offerLetterService = {
 
     // Update status to processing
     status.status = "PROCESSING";
-    SocketManager.emitProcessUpdate(processId, { ...status });
 
     try {
+      console.log(processStatuses, processId, status, "dshgfh");
       const results = await Promise.all(
         offerLetters.map((data) =>
           limit(() =>
@@ -167,7 +167,6 @@ export const offerLetterService = {
       const errorStatus = processStatuses.get(processId);
       if (errorStatus) {
         errorStatus.status = "FAILED";
-        SocketManager.emitProcessComplete(processId, { ...errorStatus });
       }
     }
   },
@@ -200,7 +199,6 @@ export const offerLetterService = {
         const errorStatus = processStatuses.get(processId);
         if (errorStatus) {
           errorStatus.status = "FAILED";
-          SocketManager.emitProcessComplete(processId, { ...errorStatus });
         }
       }
     );
@@ -261,13 +259,69 @@ export const offerLetterService = {
       status: updatedData.status,
     };
   },
+  async processOneOfferLetterProcessId(
+    offerLetterData: IOfferLetter,
+    authUser: IJwtPayload,
+    processId: string
+  ) {
+    const updatedData: IOfferLetter = { ...offerLetterData };
+    let resultStatus = IEmailStatus.FAILED;
+
+    try {
+      // await new Promise((res) => setTimeout(res, 1000));
+      const emailContent = await EmailHelper.createEmailContent(
+        //@ts-ignore
+        { userName: offerLetterData.employeeEmail || "", ...updatedData },
+        "offerLetter"
+      );
+
+      const pdfBuffer = await generateOfferLetterPDFByPdfKIt(offerLetterData);
+
+      const attachment = {
+        filename: `offerletter_${offerLetterData.employeeEmail}.pdf`,
+        content: pdfBuffer,
+        encoding: "base64", // if necessary
+      };
+
+      const emailResult = await EmailHelper.sendEmail(
+        //@ts-ignore
+        offerLetterData.employeeEmail,
+        emailContent,
+        "Offer letter confirmed!",
+        attachment
+      );
+
+      resultStatus =
+        emailResult.status === IEmailStatus.SENT
+          ? IEmailStatus.SENT
+          : IEmailStatus.FAILED;
+
+      updatedData.status = resultStatus;
+    } catch (error) {
+      console.error(`Failed for ${offerLetterData.employeeEmail}:`, error);
+      updatedData.status = IEmailStatus.FAILED;
+    }
+
+    const newOfferLetter = new OfferLetter({
+      ...updatedData,
+      generateByUser: authUser.userId,
+    });
+
+    await newOfferLetter.save();
+
+    return {
+      email: offerLetterData.employeeEmail,
+      status: updatedData.status,
+    };
+  },
   async processOneOfferLetterWithSocket(
     offerLetterData: IOfferLetter,
     authUser: IJwtPayload,
     processId: string
   ): Promise<{ email: string; status: IEmailStatus }> {
+    console.log("call", offerLetterData);
     const result = await this.processOneOfferLetter(offerLetterData, authUser);
-
+    console.log(result, "result");
     // Update process status after processing each email
     this.updateProcessStatus(
       processId,
@@ -300,13 +354,8 @@ export const offerLetterService = {
         processStatus.failed === processStatus.total ? "FAILED" : "COMPLETED";
     }
 
-    // Emit update to all clients in the process room
-    SocketManager.emitProcessUpdate(processId, { ...processStatus });
-
     // If process is complete, emit completion event
     if (processStatus.pending === 0) {
-      SocketManager.emitProcessComplete(processId, { ...processStatus });
-
       // Clean up after 5 minutes
       setTimeout(() => {
         processStatuses.delete(processId);
@@ -327,9 +376,7 @@ export const offerLetterService = {
   // Cancel/delete a process
   cancelProcess(processId: string): boolean {
     const deleted = processStatuses.delete(processId);
-    if (deleted) {
-      SocketManager.emitProcessCancelled(processId);
-    }
+
     return deleted;
   },
 

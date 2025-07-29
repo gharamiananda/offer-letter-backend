@@ -22,10 +22,9 @@ const emailHelper_1 = require("../../utils/emailHelper");
 const generateOrderInvoicePDF_1 = require("../../utils/generateOrderInvoicePDF");
 const offer_letter_1 = require("../../utils/offer-letter");
 const release_letter_interface_1 = require("../release-letter/release-letter.interface");
-const socket_manager_1 = require("../socket/socket-manager");
 const offer_letter_model_1 = __importDefault(require("./offer-letter.model"));
 const processStatuses = new Map();
-const limit = (0, p_limit_1.default)(10); // Max 10 concurrent emails
+const limit = (0, p_limit_1.default)(1); // Max 10 concurrent emails
 exports.offerLetterService = {
     getOfferLetterAll(query) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -123,8 +122,8 @@ exports.offerLetterService = {
                 return;
             // Update status to processing
             status.status = "PROCESSING";
-            socket_manager_1.SocketManager.emitProcessUpdate(processId, Object.assign({}, status));
             try {
+                console.log(processStatuses, processId, status, "dshgfh");
                 const results = yield Promise.all(offerLetters.map((data) => limit(() => this.processOneOfferLetterWithSocket(data, authUser, processId))));
                 console.log(`Bulk process ${processId} completed with ${results.length} results`);
             }
@@ -133,7 +132,6 @@ exports.offerLetterService = {
                 const errorStatus = processStatuses.get(processId);
                 if (errorStatus) {
                     errorStatus.status = "FAILED";
-                    socket_manager_1.SocketManager.emitProcessComplete(processId, Object.assign({}, errorStatus));
                 }
             }
         });
@@ -161,7 +159,6 @@ exports.offerLetterService = {
                 const errorStatus = processStatuses.get(processId);
                 if (errorStatus) {
                     errorStatus.status = "FAILED";
-                    socket_manager_1.SocketManager.emitProcessComplete(processId, Object.assign({}, errorStatus));
                 }
             });
             return { processId, status: "started" };
@@ -200,9 +197,45 @@ exports.offerLetterService = {
             };
         });
     },
+    processOneOfferLetterProcessId(offerLetterData, authUser, processId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const updatedData = Object.assign({}, offerLetterData);
+            let resultStatus = release_letter_interface_1.IEmailStatus.FAILED;
+            try {
+                // await new Promise((res) => setTimeout(res, 1000));
+                const emailContent = yield emailHelper_1.EmailHelper.createEmailContent(Object.assign({ userName: offerLetterData.employeeEmail || "" }, updatedData), "offerLetter");
+                const pdfBuffer = yield (0, offer_letter_1.generateOfferLetterPDFByPdfKIt)(offerLetterData);
+                const attachment = {
+                    filename: `offerletter_${offerLetterData.employeeEmail}.pdf`,
+                    content: pdfBuffer,
+                    encoding: "base64", // if necessary
+                };
+                const emailResult = yield emailHelper_1.EmailHelper.sendEmail(
+                //@ts-ignore
+                offerLetterData.employeeEmail, emailContent, "Offer letter confirmed!", attachment);
+                resultStatus =
+                    emailResult.status === release_letter_interface_1.IEmailStatus.SENT
+                        ? release_letter_interface_1.IEmailStatus.SENT
+                        : release_letter_interface_1.IEmailStatus.FAILED;
+                updatedData.status = resultStatus;
+            }
+            catch (error) {
+                console.error(`Failed for ${offerLetterData.employeeEmail}:`, error);
+                updatedData.status = release_letter_interface_1.IEmailStatus.FAILED;
+            }
+            const newOfferLetter = new offer_letter_model_1.default(Object.assign(Object.assign({}, updatedData), { generateByUser: authUser.userId }));
+            yield newOfferLetter.save();
+            return {
+                email: offerLetterData.employeeEmail,
+                status: updatedData.status,
+            };
+        });
+    },
     processOneOfferLetterWithSocket(offerLetterData, authUser, processId) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log("call", offerLetterData);
             const result = yield this.processOneOfferLetter(offerLetterData, authUser);
+            console.log(result, "result");
             // Update process status after processing each email
             this.updateProcessStatus(processId, offerLetterData.employeeEmail, result.status);
             return result;
@@ -228,11 +261,8 @@ exports.offerLetterService = {
             processStatus.status =
                 processStatus.failed === processStatus.total ? "FAILED" : "COMPLETED";
         }
-        // Emit update to all clients in the process room
-        socket_manager_1.SocketManager.emitProcessUpdate(processId, Object.assign({}, processStatus));
         // If process is complete, emit completion event
         if (processStatus.pending === 0) {
-            socket_manager_1.SocketManager.emitProcessComplete(processId, Object.assign({}, processStatus));
             // Clean up after 5 minutes
             setTimeout(() => {
                 processStatuses.delete(processId);
@@ -250,9 +280,6 @@ exports.offerLetterService = {
     // Cancel/delete a process
     cancelProcess(processId) {
         const deleted = processStatuses.delete(processId);
-        if (deleted) {
-            socket_manager_1.SocketManager.emitProcessCancelled(processId);
-        }
         return deleted;
     },
     // Clean up expired processes (call this periodically)
