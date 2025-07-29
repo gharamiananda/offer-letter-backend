@@ -406,6 +406,23 @@ function createTable(
 }
 
 // Create Page 1 - Main Offer Letter
+function drawParallelogram(
+  doc: PDFKit.PDFDocument,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  skew: number = 40,
+  fillColor: string = "#000000"
+) {
+  doc
+    .moveTo(x + skew, y) // Top-left (skewed)
+    .lineTo(x + width, y) // Top-right
+    .lineTo(x + width, y + height) // Bottom-right (skewed)
+    .lineTo(x, y + height) // Bottom-left
+    .closePath() // Close the shape
+    .fill(fillColor); // Fill with specified color
+}
 async function createPage1(
   doc: PDFKit.PDFDocument,
   offerLetter: IOfferLetter,
@@ -424,8 +441,19 @@ async function createPage1(
     .font("Helvetica-Bold")
     .text("WOODROCK SOFTONIC PVT LTD", 20, 45);
 
-  // Right ribbon effect (simulated with a rectangle)
-  doc.rect(pageWidth - 200, 35, 200, 30).fill("#3b3b3b");
+  // drawParallelogram(doc, pageWidth - 200, 35, 200, 30, 40, "#000000");
+  const x = pageWidth - 200;
+  const y = 35;
+  const width = 200;
+  const height = 30;
+  const skew = 40;
+  doc
+    .moveTo(x + skew, y) // Top-left (skewed)
+    .lineTo(x + width, y) // Top-right
+    .lineTo(x + width, y + height) // Bottom-right (skewed)
+    .lineTo(x, y + height) // Bottom-left
+    .closePath() // Close the shape
+    .fill("#000000"); // Fill with specified color
 
   // Maroon strip with employee name
   doc.rect(0, 100, 320, 50).fill("#660505");
@@ -495,7 +523,7 @@ async function createPage1(
   doc.text(
     "Employment as per this offer is subject to your being medically fit.",
     30,
-    yPosition,
+    (yPosition += 20),
     { width: 535 }
   );
 
@@ -568,9 +596,18 @@ async function createPage2(doc: PDFKit.PDFDocument, offerLetter: IOfferLetter) {
     .fontSize(24)
     .font("Helvetica-Bold")
     .text("WOODROCK SOFTONIC PVT LTD", 20, 45);
-
-  // Right ribbon effect
-  doc.rect(pageWidth - 200, 35, 200, 30).fill("#3b3b3b");
+  const x = pageWidth - 200;
+  const y = 35;
+  const width = 200;
+  const height = 30;
+  const skew = 40;
+  doc
+    .moveTo(x + skew, y) // Top-left (skewed)
+    .lineTo(x + width, y) // Top-right
+    .lineTo(x + width, y + height) // Bottom-right (skewed)
+    .lineTo(x, y + height) // Bottom-left
+    .closePath() // Close the shape
+    .fill("#000000"); // Fill with specified color
 
   // Terms & Conditions heading
   doc
@@ -581,7 +618,8 @@ async function createPage2(doc: PDFKit.PDFDocument, offerLetter: IOfferLetter) {
 
   // Terms list
   const terms = [
-    "Your attendance cycle will be calculated from 1st to 31st of every month. Your salary date will be 15th of every month for the previous month.",
+    "Your attendance cycle will be calculated from 1st to 31st of every month.",
+    "Your salary date will be 15th of every month for the previous month.",
     "Training will be of 40 days which includes your On Job Training (OJT).",
     "Every employee will have their P tax deduction as per norm.",
     "Flexible shift timings may vary and are subject to change any time within a week.",

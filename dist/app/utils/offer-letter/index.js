@@ -395,6 +395,15 @@ function createTable(doc, x, y, data) {
     });
 }
 // Create Page 1 - Main Offer Letter
+function drawParallelogram(doc, x, y, width, height, skew = 40, fillColor = "#000000") {
+    doc
+        .moveTo(x + skew, y) // Top-left (skewed)
+        .lineTo(x + width, y) // Top-right
+        .lineTo(x + width, y + height) // Bottom-right (skewed)
+        .lineTo(x, y + height) // Bottom-left
+        .closePath() // Close the shape
+        .fill(fillColor); // Fill with specified color
+}
 function createPage1(doc, offerLetter, signatureBuffer) {
     return __awaiter(this, void 0, void 0, function* () {
         const pageWidth = 595.28; // A4 width in points
@@ -407,8 +416,19 @@ function createPage1(doc, offerLetter, signatureBuffer) {
             .fontSize(24)
             .font("Helvetica-Bold")
             .text("WOODROCK SOFTONIC PVT LTD", 20, 45);
-        // Right ribbon effect (simulated with a rectangle)
-        doc.rect(pageWidth - 200, 35, 200, 30).fill("#3b3b3b");
+        // drawParallelogram(doc, pageWidth - 200, 35, 200, 30, 40, "#000000");
+        const x = pageWidth - 200;
+        const y = 35;
+        const width = 200;
+        const height = 30;
+        const skew = 40;
+        doc
+            .moveTo(x + skew, y) // Top-left (skewed)
+            .lineTo(x + width, y) // Top-right
+            .lineTo(x + width, y + height) // Bottom-right (skewed)
+            .lineTo(x, y + height) // Bottom-left
+            .closePath() // Close the shape
+            .fill("#000000"); // Fill with specified color
         // Maroon strip with employee name
         doc.rect(0, 100, 320, 50).fill("#660505");
         doc
@@ -457,7 +477,7 @@ function createPage1(doc, offerLetter, signatureBuffer) {
             .font("Helvetica")
             .text("The offer has been made based on information furnished by you. However, if there is a discrepancy in the copies of any document or certificate given by you as proof, we hold the rights to review the offer of employment.", 30, yPosition, { width: 535, lineGap: 3 });
         yPosition += 40;
-        doc.text("Employment as per this offer is subject to your being medically fit.", 30, yPosition, { width: 535 });
+        doc.text("Employment as per this offer is subject to your being medically fit.", 30, (yPosition += 20), { width: 535 });
         yPosition += 30;
         doc.text("Please sign and return duplicate copy of this letter in token of your acceptance.", 30, yPosition, { width: 535 });
         yPosition += 30;
@@ -506,8 +526,18 @@ function createPage2(doc, offerLetter) {
             .fontSize(24)
             .font("Helvetica-Bold")
             .text("WOODROCK SOFTONIC PVT LTD", 20, 45);
-        // Right ribbon effect
-        doc.rect(pageWidth - 200, 35, 200, 30).fill("#3b3b3b");
+        const x = pageWidth - 200;
+        const y = 35;
+        const width = 200;
+        const height = 30;
+        const skew = 40;
+        doc
+            .moveTo(x + skew, y) // Top-left (skewed)
+            .lineTo(x + width, y) // Top-right
+            .lineTo(x + width, y + height) // Bottom-right (skewed)
+            .lineTo(x, y + height) // Bottom-left
+            .closePath() // Close the shape
+            .fill("#000000"); // Fill with specified color
         // Terms & Conditions heading
         doc
             .fillColor("#000000")
@@ -516,7 +546,8 @@ function createPage2(doc, offerLetter) {
             .text("Terms & Conditions:", 30, 100);
         // Terms list
         const terms = [
-            "Your attendance cycle will be calculated from 1st to 31st of every month. Your salary date will be 15th of every month for the previous month.",
+            "Your attendance cycle will be calculated from 1st to 31st of every month.",
+            "Your salary date will be 15th of every month for the previous month.",
             "Training will be of 40 days which includes your On Job Training (OJT).",
             "Every employee will have their P tax deduction as per norm.",
             "Flexible shift timings may vary and are subject to change any time within a week.",
