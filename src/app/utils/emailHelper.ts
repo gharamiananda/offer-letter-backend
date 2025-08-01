@@ -64,6 +64,30 @@ const sendEmail = async (
   }
 };
 
+const verifyEmailCredentials = async (): Promise<boolean> => {
+  try {
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
+      auth: {
+        user: config.sender_email,
+        pass: config.sender_app_password,
+      },
+      tls: {
+        rejectUnauthorized: false,
+      },
+    });
+
+    await transporter.verify(); // This checks if the connection/auth is OK
+    console.log("SMTP credentials are valid.");
+    return true;
+  } catch (err: any) {
+    console.error("Invalid SMTP credentials:", err.message || err);
+    return false;
+  }
+};
+
 const sendEmailFromAdmin = async (
   email: string,
   html: string,
@@ -141,4 +165,5 @@ export const EmailHelper = {
   sendEmail,
   createEmailContent,
   sendEmailFromAdmin,
+  verifyEmailCredentials
 };
