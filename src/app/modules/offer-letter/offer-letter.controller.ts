@@ -7,6 +7,7 @@ import catchAsync from "../../utils/catchAsync";
 import { IOfferLetter } from "./offer-letter.interface";
 import * as XLSX from "xlsx";
 import AppError from "../../errors/appError";
+import { EmailHelper } from "../../utils/emailHelper";
 
 export const offerLetterController = {
   // async getAll() {
@@ -90,29 +91,45 @@ export const offerLetterController = {
       );
     }
 
-    const workbook = XLSX.read(file.buffer, {
-      type: "buffer",
-      cellDates: true, // Important: forces cells to be parsed as Date objects
-    });
 
-    const sheetName = workbook.SheetNames[0];
+const isValid = await EmailHelper.verifyEmailCredentials();
 
-    const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {
-      defval: "", // Keeps empty cells instead of skipping
-      raw: false, // Converts dates and numbers properly
-    });
+if (!isValid) {
+  console.error("Cannot send email: Invalid credentials.");
+  return sendResponse(res, {
+    statusCode: StatusCodes.BAD_REQUEST, // Or StatusCodes.BAD_REQUEST
+    success: false,
+    message: "Failed to send offer letters: Invalid email credentials. Please contact admin.",
+    data: "INVALID_MAIL_CONFIG",
+  });
+}
 
-    const results = await offerLetterService.createBulkOfferLetters(
-      rows as IOfferLetter[],
-      req.user as IJwtPayload
-    );
-    console.log(rows, "rows");
-    sendResponse(res, {
-      statusCode: StatusCodes.OK,
-      success: true,
-      message: "Bulk offer letters processed",
-      data: results,
-    });
+// Proceed if credentials are valid
+const workbook = XLSX.read(file.buffer, {
+  type: "buffer",
+  cellDates: true,
+});
+
+const sheetName = workbook.SheetNames[0];
+
+const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {
+  defval: "",
+  raw: false,
+});
+
+const results = await offerLetterService.createBulkOfferLetters(
+  rows as IOfferLetter[],
+  req.user as IJwtPayload
+);
+
+console.log(rows, "rows");
+
+sendResponse(res, {
+  statusCode: StatusCodes.OK,
+  success: true,
+  message: "Bulk offer letters processed and emails sent successfully.",
+  data: results,
+});
   },
   async createBulkOfferLetterWithSocket(req: Request, res: Response) {
     const results = await offerLetterService.createBulkOfferLettersWithSocket(
